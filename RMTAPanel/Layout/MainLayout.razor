@@ -8,13 +8,23 @@
 
 <MudLayout>
     <MudAppBar>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" OnClick="DrawerToggle" Color="Color.Inherit"/>
         <MudText Typo="Typo.h6" Class="pa-5">Registra meu tempo aí!</MudText>
-
     </MudAppBar>
-    <MudDrawer Open="true">
+    <MudDrawer @bind-Open="_drawerOpen">
         <NavBar/>
     </MudDrawer>
     <MudMainContent>
         @Body
     </MudMainContent>
 </MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+}

@@ -1,0 +1,37 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Acessar</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="mt-20">
+    <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+        <MudPaper Class="pa-4" Width="100%">
+            <MudText Typo="Typo.h6">Acessar</MudText>
+
+            <MudForm>
+                <MudTextField
+                    T="string"
+                    Label="Email"
+                    Required="true"
+                    RequiredError="Informe seu e-mail"
+                    InputType="InputType.Email"
+                    Validation="@(new EmailAddressAttribute() { ErrorMessage = "Digite um e-mail válido." })"/>
+
+                <MudTextField
+                    T="string"
+                    Label="Senha"
+                    Required="true"
+                    RequiredError="Informe sua senha."
+                    InputType="InputType.Password"/>
+
+                <div>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4">Acessar</MudButton>
+                </div>
+            </MudForm>
+        </MudPaper>
+    </MudStack>
+</MudContainer>
+
+@code {
+
+}

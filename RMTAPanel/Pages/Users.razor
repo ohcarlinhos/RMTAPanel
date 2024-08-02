@@ -1,0 +1,49 @@
+﻿@page "/users"
+
+<PageTitle>Usuários</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-20">
+    <MudGrid>
+        <MudItem sm="12">
+            <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Usuários</MudText>
+            
+            <MudTable Hover="true" Items="@UserList">
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>Nome</MudTh>
+                    <MudTh>Email</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Id">@context.Id</MudTd>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager/>
+                </PagerContent>
+            </MudTable>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+
+@code {
+    public class User
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+    }
+
+    private IEnumerable<User> UserList = new List<User>
+    {
+        new() { Id = 1, Name = "Carlos", Email = "email@teste.com" },
+        new() { Id = 2, Name = "Carlos", Email = "email@teste.com" },
+        new() { Id = 3, Name = "Carlos", Email = "email@teste.com" },
+        new() { Id = 4, Name = "Carlos", Email = "email@teste.com" },
+        new() { Id = 5, Name = "Carlos", Email = "email@teste.com" },
+        new() { Id = 6, Name = "Carlos", Email = "email@teste.com" },
+        new() { Id = 7, Name = "Carlos", Email = "email@teste.com" },
+    };
+
+}

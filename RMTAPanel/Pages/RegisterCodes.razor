@@ -1,0 +1,113 @@
+﻿@page "/register-codes"
+@inject IJSRuntime Js
+@inject HttpClient Http
+
+<PageTitle>Códigos de Registro</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-20">
+    <MudGrid>
+        <MudItem sm="12">
+            <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Códigos de Registro</MudText>
+
+            @if (_registerCodeList.Count > 0)
+            {
+                <MudTable Hover="true" Items="@_registerCodeList">
+                    <HeaderContent>
+                        <MudTh>Chave</MudTh>
+                        <MudTh>Disponível</MudTh>
+                        <MudTh>Usada por</MudTh>
+                        <MudTh>Para uso de</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Chave">
+                            <MudToggleIconButton
+                                @bind-Toggled="context.ShowCode"
+                                Icon="@Icons.Material.Filled.CodeOff"
+                                ToggledIcon="@Icons.Material.Filled.Code">
+                            </MudToggleIconButton>
+
+                            @if (context.ShowCode)
+                            {
+                                <section class="register_code__copy">
+                                    <span Class="register_code__id">@context.Id</span>
+                                    @if (!context.IsUsed)
+                                    {
+                                        <MudIconButton
+                                            Icon="@Icons.Material.Filled.ContentCopy"
+                                            Size="Size.Small"
+                                            OnClick="() => CopyToClipboard(context.Id)"/>
+                                    }
+                                </section>
+                            }
+                            else
+                            {
+                                @("...")
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Disponível">@(!context.IsUsed ? "Sim" : "Não") </MudTd>
+                        <MudTd DataLabel="Usada por">@(!string.IsNullOrEmpty(context.User?.Name) ? context.User.Name : "-")</MudTd>
+                        <MudTd DataLabel="Para uso de">@(!string.IsNullOrEmpty(context.Email) ? context.Email : "-")</MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager/>
+                    </PagerContent>
+                </MudTable>
+            }
+            else
+            {
+                <MudPaper Class="pa-5">
+                    <MudText>Nenhum código de registro encontrado.</MudText>
+                </MudPaper>
+            }
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+
+@code {
+
+    public class RegisterCode
+    {
+        public string Id { get; } = Guid.NewGuid().ToString();
+        public bool IsUsed { get; set; }
+        public string UserName { get; set; }
+        public string? Email { get; set; }
+        public bool ShowCode { get; set; }
+        public Users.User? User { get; set; }
+    }
+
+    private class ApiResponse<T>
+    {
+        public T Data { get; set; }
+    }
+
+    private List<RegisterCode> _registerCodeList =
+    [
+        new RegisterCode { IsUsed = false, Email = "" },
+        new RegisterCode { IsUsed = true, UserName = "Carlos Roberto", Email = "" },
+        new RegisterCode { IsUsed = false, Email = "teste@teste.com" },
+        new RegisterCode { IsUsed = false, Email = "" },
+        new RegisterCode { IsUsed = false, Email = "" },
+    ];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _registerCodeList = await Http.GetFromJsonAsync<List<RegisterCode>>("register-code");
+        }
+        catch
+        {
+            Console.WriteLine("deu ruim");
+        }
+    }
+
+    private async Task CopyToClipboard(string code)
+    {
+        if (!string.IsNullOrEmpty(code))
+        {
+            await Js.InvokeVoidAsync("copyTextToClipboard", code);
+        }
+    }
+
+}

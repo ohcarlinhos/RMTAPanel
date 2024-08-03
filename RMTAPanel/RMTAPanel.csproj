@@ -16,4 +16,13 @@
       <_ContentIncludedByDefault Remove="wwwroot\sample-data\weather.json" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Entities">
+        <HintPath>..\builds\Entities.dll</HintPath>
+      </Reference>
+      <Reference Include="Shared">
+        <HintPath>..\builds\Shared.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

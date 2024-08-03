@@ -6,44 +6,70 @@
     <MudGrid>
         <MudItem sm="12">
             <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Usuários</MudText>
-            
-            <MudTable Hover="true" Items="@UserList">
-                <HeaderContent>
-                    <MudTh>Id</MudTh>
-                    <MudTh>Nome</MudTh>
-                    <MudTh>Email</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Id">@context.Id</MudTd>
-                    <MudTd DataLabel="Name">@context.Name</MudTd>
-                    <MudTd DataLabel="Email">@context.Email</MudTd>
-                </RowTemplate>
-                <PagerContent>
-                    <MudTablePager/>
-                </PagerContent>
-            </MudTable>
+
+            @if (_userList.Count > 0)
+            {
+                <MudTable Hover="true" Items="@_userList">
+                    <HeaderContent>
+                        <MudTh>Id</MudTh>
+                        <MudTh>Nome</MudTh>
+                        <MudTh>Email</MudTh>
+                        <MudTh>Ativo</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
+                        <MudTd DataLabel="Nome">@context.Name</MudTd>
+                        <MudTd DataLabel="Email">@context.Email</MudTd>
+                        <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim": "Não")</MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager/>
+                    </PagerContent>
+                </MudTable>
+            }
+            else
+            {
+                <MudPaper Class="pa-5">
+                    <MudText>Nenhum usuário encontrado.</MudText>
+                </MudPaper>
+            }
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 
 @code {
+
     public class User
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
+        public bool IsActive { get; set; }
     }
 
-    private IEnumerable<User> UserList = new List<User>
+    private readonly List<User> _userList = new()
     {
-        new() { Id = 1, Name = "Carlos", Email = "email@teste.com" },
-        new() { Id = 2, Name = "Carlos", Email = "email@teste.com" },
-        new() { Id = 3, Name = "Carlos", Email = "email@teste.com" },
-        new() { Id = 4, Name = "Carlos", Email = "email@teste.com" },
-        new() { Id = 5, Name = "Carlos", Email = "email@teste.com" },
-        new() { Id = 6, Name = "Carlos", Email = "email@teste.com" },
-        new() { Id = 7, Name = "Carlos", Email = "email@teste.com" },
+        new User { Id = 1, Name = "Carlos Eduardo", Email = "carlos@teste.com", IsActive = true },
+        new User { Id = 2, Name = "Ana Beatriz", Email = "ana@teste.com", IsActive = false },
+        new User { Id = 3, Name = "João Pedro", Email = "joao@teste.com", IsActive = true },
+        new User { Id = 4, Name = "Maria Clara", Email = "maria@teste.com", IsActive = false },
+        new User { Id = 5, Name = "Pedro Henrique", Email = "pedro@teste.com", IsActive = true },
+        new User { Id = 6, Name = "Laura Silva", Email = "laura@teste.com", IsActive = true },
+        new User { Id = 7, Name = "Ricardo Martins", Email = "ricardo@teste.com", IsActive = false },
+        new User { Id = 8, Name = "Juliana Costa", Email = "juliana@teste.com", IsActive = true },
+        new User { Id = 9, Name = "Gabriel Almeida", Email = "gabriel@teste.com", IsActive = false },
+        new User { Id = 10, Name = "Fernanda Lima", Email = "fernanda@teste.com", IsActive = true },
+        new User { Id = 11, Name = "André Luiz", Email = "andre@teste.com", IsActive = false },
+        new User { Id = 12, Name = "Patrícia Gomes", Email = "patricia@teste.com", IsActive = true },
+        new User { Id = 13, Name = "Lucas Oliveira", Email = "lucas@teste.com", IsActive = false },
+        new User { Id = 14, Name = "Mariana Fernandes", Email = "mariana@teste.com", IsActive = true },
+        new User { Id = 15, Name = "Roberto Souza", Email = "roberto@teste.com", IsActive = true },
+        new User { Id = 16, Name = "Tatiane Pereira", Email = "tatiane@teste.com", IsActive = false },
+        new User { Id = 17, Name = "Eduardo Santos", Email = "eduardo@teste.com", IsActive = true },
+        new User { Id = 18, Name = "Camila Rocha", Email = "camila@teste.com", IsActive = false },
+        new User { Id = 19, Name = "Renato Cardoso", Email = "renato@teste.com", IsActive = true },
+        new User { Id = 20, Name = "Julio César", Email = "julio@teste.com", IsActive = false }
     };
 
 }

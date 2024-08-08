@@ -7,6 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.7" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.1" PrivateAssets="all" />
         <PackageReference Include="MudBlazor" Version="7.5.0" />
@@ -18,11 +20,10 @@
 
     <ItemGroup>
       <Reference Include="Entities">
-        <HintPath>..\builds\Entities.dll</HintPath>
+        <HintPath>..\assemble\Entities.dll</HintPath>
       </Reference>
       <Reference Include="Shared">
-        <HintPath>..\builds\Shared.dll</HintPath>
+        <HintPath>..\assemble\Shared.dll</HintPath>
       </Reference>
     </ItemGroup>
-
 </Project>

@@ -1,5 +1,7 @@
 ﻿@page "/login"
-@using System.ComponentModel.DataAnnotations
+@using Shared.Auth
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Components.Authorization
 
 <PageTitle>Acessar</PageTitle>
 
@@ -8,35 +10,69 @@
         <MudPaper Class="pa-4" Width="100%">
             <MudText Typo="Typo.h6" HtmlTag="h3">Acessar</MudText>
 
-            <MudForm @ref="Form">
-                <MudTextField
-                    T="string"
-                    Label="Email"
-                    Required="true"
-                    RequiredError="Informe seu e-mail"
-                    InputType="InputType.Email"
-                    Validation="@(new EmailAddressAttribute() { ErrorMessage = "Digite um e-mail válido." })"/>
+            <EditForm Model="@_loginDto" OnValidSubmit="@SubmitForm">
+                <DataAnnotationsValidator/>
 
                 <MudTextField
-                    T="string"
+                    @bind-Value="_loginDto.Email"
+                    Label="Email"
+                    InputType="InputType.Email"
+                    For="@(() => _loginDto.Email)"/>
+
+                <MudTextField
+                    @bind-Value="_loginDto.Password"
                     Label="Senha"
-                    Required="true"
-                    RequiredError="Informe sua senha."
-                    InputType="InputType.Password"/>
+                    InputType="InputType.Password"
+                    For="@(() => _loginDto.Password)"/>
 
                 <MudStack Class="mt-2">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" OnClick="@(() => SubmitForm())">Acessar</MudButton>
+                    <MudButton
+                        Variant="Variant.Filled"
+                        ButtonType="ButtonType.Submit"
+                        Color="Color.Primary"
+                        Class="mt-4">
+                        Acessar
+                    </MudButton>
                 </MudStack>
-            </MudForm>
+            </EditForm>
         </MudPaper>
     </MudStack>
 </MudContainer>
 
 @code {
-    MudForm Form;
+    [Inject] HttpClient Http { get; set; }
+    [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] ILocalStorageService LocalStoreage { get; set; }
+    [Inject] AuthenticationStateProvider AuthProvider { get; set; }
 
-    void SubmitForm()
+    class ErrorApi
     {
-        Form.Validate();
+        public string? Message { get; set; }
+    }
+
+    class AuthResponse
+    {
+        public string Token { get; set; }
+    }
+
+    LoginDto _loginDto = new();
+
+    async Task SubmitForm()
+    {
+        var result = await Http.PostAsJsonAsync("auth/login", _loginDto);
+
+        if (!result.IsSuccessStatusCode)
+        {
+            var errorContent = await result.Content.ReadFromJsonAsync<ErrorApi>();
+            Snackbar.Add(errorContent.Message ?? "Erro", Severity.Error);
+            return;
+        }
+
+        var content = await result.Content.ReadFromJsonAsync<AuthResponse>();
+        
+        if (content == null || string.IsNullOrEmpty(content.Token)) return;
+
+        await LocalStoreage.SetItemAsync("jwt_token", content.Token);
+        await AuthProvider.GetAuthenticationStateAsync();
     }
 }

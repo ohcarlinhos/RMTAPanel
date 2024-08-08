@@ -35,7 +35,7 @@ public class CustomAuthStateProvider(ILocalStorageService localStorage, HttpClie
         var keyValuesPair = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
         return keyValuesPair != null
-            ? keyValuesPair.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString()))
+            ? keyValuesPair.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString() ?? ""))
             : new List<Claim>();
     }
 

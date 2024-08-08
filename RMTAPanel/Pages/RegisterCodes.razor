@@ -62,24 +62,23 @@
     </MudGrid>
 </MudContainer>
 
-
 @code {
-    [Inject] HttpClient Http { get; set; }
-    [Inject] IJSRuntime Js { get; set; }
+    [Inject] HttpClient? Http { get; set; }
+    [Inject] IJSRuntime? Js { get; set; }
 
-    private List<RegisterCodeFormatted> _registerCodeList = [];
+    private List<RegisterCodeFormatted> _registerCodeList = new();
 
     public class RegisterCodeFormatted : RegisterCode
     {
         public bool ShowCode { get; set; }
-        public string Email { get; set; }
+        public string? Email { get; set; }
     }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var resultList = await Http.GetFromJsonAsync<List<RegisterCode>>("register-code");
+            var resultList = await Http!.GetFromJsonAsync<List<RegisterCode>>("register-code");
             if (resultList == null) return;
 
             foreach (var registerCode in resultList)
@@ -103,7 +102,7 @@
     private async Task CopyToClipboard(string code)
     {
         if (!string.IsNullOrEmpty(code))
-            await Js.InvokeVoidAsync("copyTextToClipboard", code);
+            await Js!.InvokeVoidAsync("copyTextToClipboard", code);
     }
 
 }

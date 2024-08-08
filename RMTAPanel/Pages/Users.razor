@@ -1,6 +1,5 @@
 ﻿@page "/users"
 @using Shared.User
-@using Shared
 @attribute [Authorize]
 
 <PageTitle>Usuários</PageTitle>
@@ -19,12 +18,14 @@
                         <MudTh>Email</MudTh>
                         <MudTh>Ativo</MudTh>
                     </HeaderContent>
+                    
                     <RowTemplate>
                         <MudTd DataLabel="Id">@context.Id</MudTd>
                         <MudTd DataLabel="Nome">@context.Name</MudTd>
                         <MudTd DataLabel="Email">@context.Email</MudTd>
                         <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim" : "Não")</MudTd>
                     </RowTemplate>
+                    
                     <PagerContent>
                         <MudTablePager/>
                     </PagerContent>
@@ -42,14 +43,14 @@
 
 
 @code {
-    [Inject] HttpClient Http { get; set; }
+    [Inject] HttpClient? Http { get; set; }
     private List<UserMap> _userList = [];
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var result = await Http.GetFromJsonAsync<Pagination<UserMap>>("user");
+            var result = await Http!.GetFromJsonAsync<Pagination<UserMap>>("user");
             if (result?.Data != null) _userList = result.Data;
         }
         catch (HttpRequestException e)

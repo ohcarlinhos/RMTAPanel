@@ -1,0 +1,78 @@
+@using Shared.Auth
+
+<MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+    <MudPaper Class="pa-4" Width="100%">
+        <MudText Typo="Typo.h6" HtmlTag="h3">Acessar</MudText>
+
+        <EditForm Model="@_loginDto" OnValidSubmit="@SubmitForm">
+            <DataAnnotationsValidator/>
+
+            <MudTextField
+                @bind-Value="_loginDto.Email"
+                Label="Email"
+                InputType="InputType.Email"
+                For="@(() => _loginDto.Email)"/>
+
+            <MudTextField
+                @bind-Value="_loginDto.Password"
+                Label="Senha"
+                InputType="InputType.Password"
+                For="@(() => _loginDto.Password)"/>
+
+            <MudStack Class="mt-2">
+                <MudButton
+                    Variant="Variant.Filled"
+                    ButtonType="ButtonType.Submit"
+                    Color="Color.Primary"
+                    Class="mt-4">
+                    Acessar
+                </MudButton>
+            </MudStack>
+        </EditForm>
+    </MudPaper>
+</MudStack>
+
+@code {
+    [Inject] HttpClient? Http { get; set; }
+    [Inject] ISnackbar? Snackbar { get; set; }
+    [Inject] ILocalStorageService? LocalStorage { get; set; }
+    [Inject] AuthenticationStateProvider? AuthProvider { get; set; }
+
+    class ErrorApi
+    {
+        public string? Message { get; set; }
+    }
+
+    class AuthResponse
+    {
+        public string? Token { get; set; } = "";
+    }
+
+    LoginDto _loginDto = new() { Email = "carlinhos@test.com", Password = "Ska$312d%$1" };
+
+    async Task Logout()
+    {
+        await LocalStorage!.RemoveItemAsync("jwt_token");
+        await AuthProvider!.GetAuthenticationStateAsync();
+    }
+
+    async Task SubmitForm()
+    {
+        var result = await Http!.PostAsJsonAsync("auth/login", _loginDto);
+
+        if (!result.IsSuccessStatusCode)
+        {
+            var errorContent = await result.Content.ReadFromJsonAsync<ErrorApi>();
+            Snackbar?.Add(errorContent?.Message ?? "Erro", Severity.Error);
+            return; 
+        }
+
+        var content = await result.Content.ReadFromJsonAsync<AuthResponse>();
+
+        if (content == null || string.IsNullOrEmpty(content.Token)) return;
+
+        await LocalStorage!.SetItemAsync("jwt_token", content.Token);
+        await AuthProvider!.GetAuthenticationStateAsync();
+    }
+
+}

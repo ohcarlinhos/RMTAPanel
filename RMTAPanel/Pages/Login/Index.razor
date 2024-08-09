@@ -20,12 +20,11 @@
 
 @code {
     [Inject] ILocalStorageService? LocalStorage { get; set; }
-    [Inject] AuthenticationStateProvider? AuthProvider { get; set; }
+    [Inject] CustomAuthStateProvider? AuthProvider { get; set; }
 
     async Task Logout()
     {
         await LocalStorage!.RemoveItemAsync("jwt_token");
-        await AuthProvider!.GetAuthenticationStateAsync();
+        await AuthProvider!.NotifyStateChanged();
     }
-
 }

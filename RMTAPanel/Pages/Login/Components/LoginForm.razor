@@ -36,7 +36,7 @@
     [Inject] HttpClient? Http { get; set; }
     [Inject] ISnackbar? Snackbar { get; set; }
     [Inject] ILocalStorageService? LocalStorage { get; set; }
-    [Inject] AuthenticationStateProvider? AuthProvider { get; set; }
+    [Inject] CustomAuthStateProvider? AuthProvider { get; set; }
     
     class AuthResponse
     {
@@ -47,7 +47,7 @@
     
     async Task SubmitForm()
     {
-        var result = await Http!.PostAsJsonAsync("auth/login", _loginDto);
+        var result = await Http?.PostAsJsonAsync("auth/login", _loginDto);
 
         if (!result.IsSuccessStatusCode)
         {
@@ -61,7 +61,6 @@
         if (content == null || string.IsNullOrEmpty(content.Token)) return;
 
         await LocalStorage!.SetItemAsync("jwt_token", content.Token);
-        await AuthProvider!.GetAuthenticationStateAsync();
+        await AuthProvider!.NotifyStateChanged();
     }
-
 }

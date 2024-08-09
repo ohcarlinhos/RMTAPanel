@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-
 using MudBlazor.Services;
 using Blazored.LocalStorage;
-
 using RMTAPanel;
 using RMTAPanel.Providers;
 
@@ -20,7 +18,12 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
 
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddScoped<CustomAuthStateProvider>();
+
+builder.Services.AddScoped<AuthenticationStateProvider>((provider) =>
+    provider.GetRequiredService<CustomAuthStateProvider>()
+);
+
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 

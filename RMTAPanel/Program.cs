@@ -5,6 +5,7 @@ using MudBlazor.Services;
 using Blazored.LocalStorage;
 using RMTAPanel;
 using RMTAPanel.Providers;
+using RMTAPanel.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -23,6 +24,8 @@ builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>((provider) =>
     provider.GetRequiredService<CustomAuthStateProvider>()
 );
+
+builder.Services.AddScoped<AuthenticateService>();
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();

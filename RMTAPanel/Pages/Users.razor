@@ -20,6 +20,7 @@
                         <MudTh>Nome</MudTh>
                         <MudTh>Email</MudTh>
                         <MudTh>Ativo</MudTh>
+                        <MudTh></MudTh>
                     </HeaderContent>
 
                     <RowTemplate>
@@ -27,6 +28,13 @@
                         <MudTd DataLabel="Nome">@context.Name</MudTd>
                         <MudTd DataLabel="Email">@context.Email</MudTd>
                         <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim" : "Não")</MudTd>
+                        <MudTd DataLabel="Ações" >
+                            <MudMenu Label="Ações" PositionAtCursor="true">
+                                <MudMenuItem>Editar</MudMenuItem>
+                                <MudMenuItem>Desativar</MudMenuItem>
+                                <MudMenuItem>Apagar</MudMenuItem>
+                            </MudMenu>
+                        </MudTd>
                     </RowTemplate>
 
                     <PagerContent>

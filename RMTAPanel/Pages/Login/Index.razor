@@ -1,4 +1,5 @@
 ﻿@page "/login"
+@using RMTAPanel.Services
 @attribute [AllowAnonymous]
 
 <PageTitle>Acessar</PageTitle>
@@ -21,6 +22,7 @@
 @code {
     [Inject] ILocalStorageService? LocalStorage { get; set; }
     [Inject] CustomAuthStateProvider? AuthProvider { get; set; }
+    [Inject] AuthenticateService? AuthService { get; set; }
 
     async Task Logout()
     {

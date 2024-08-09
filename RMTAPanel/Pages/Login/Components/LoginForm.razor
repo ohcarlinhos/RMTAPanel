@@ -1,4 +1,5 @@
 @using Shared.Auth
+@using RMTAPanel.Services
 
 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
     <MudPaper Class="pa-4" Width="100%">
@@ -37,30 +38,32 @@
     [Inject] ISnackbar? Snackbar { get; set; }
     [Inject] ILocalStorageService? LocalStorage { get; set; }
     [Inject] CustomAuthStateProvider? AuthProvider { get; set; }
-    
-    class AuthResponse
-    {
-        public string? Token { get; set; } = "";
-    }
+    [Inject] AuthenticateService? AuthService { get; set; }
 
     LoginDto _loginDto = new() { Email = "carlinhos@test.com", Password = "Ska$312d%$1" };
-    
+
     async Task SubmitForm()
     {
-        var result = await Http?.PostAsJsonAsync("auth/login", _loginDto);
-
-        if (!result.IsSuccessStatusCode)
+        try
         {
-            var errorContent = await result.Content.ReadFromJsonAsync<ErrorResult>();
-            Snackbar?.Add(errorContent?.Message ?? "Erro", Severity.Error);
-            return; 
+            var response = await Http!
+                .PostAsJsonAsync("auth/login", _loginDto);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadFromJsonAsync<ErrorResult>();
+                if (string.IsNullOrEmpty(errorContent?.Message)) response.EnsureSuccessStatusCode();
+                Snackbar!.Add(errorContent?.Message, Severity.Error);
+                return;
+            }
+
+            var content = await response.Content.ReadFromJsonAsync<JwtData>();
+            if(content != null) await AuthService!.SetSate(content.Token);
         }
-
-        var content = await result.Content.ReadFromJsonAsync<AuthResponse>();
-
-        if (content == null || string.IsNullOrEmpty(content.Token)) return;
-
-        await LocalStorage!.SetItemAsync("jwt_token", content.Token);
-        await AuthProvider!.NotifyStateChanged();
+        catch (HttpRequestException)
+        {
+            Snackbar!.Add(ApiErrors.GenericErrorServe, Severity.Error);
+        }
     }
+
 }

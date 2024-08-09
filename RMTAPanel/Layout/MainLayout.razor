@@ -9,22 +9,33 @@
 <MudLayout>
     <MudAppBar>
         <MudIconButton Icon="@Icons.Material.Filled.Menu" OnClick="DrawerToggle" Color="Color.Inherit"/>
-        <MudText Typo="Typo.h5" HtmlTag="h1" Class="pa-5">Registra meu tempo aí!</MudText>
+        <MudText Typo="Typo.h5" HtmlTag="h1" Class="pa-5" Style="font-weight: bold">Registra meu tempo aí!</MudText>
     </MudAppBar>
+    
     <MudDrawer @bind-Open="_drawerOpen">
         <NavBar/>
     </MudDrawer>
+    
     <MudMainContent>
         @Body
     </MudMainContent>
 </MudLayout>
 
 @code {
+    [Inject] ILocalStorageService? LocalStorage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var drawer = await LocalStorage.GetItemAsync<bool>("drawer");
+        _drawerOpen = drawer;
+    }
+
     private bool _drawerOpen = true;
 
-    private void DrawerToggle()
+    private async Task DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+        await LocalStorage.SetItemAsync("drawer", _drawerOpen);
     }
 
 }

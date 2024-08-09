@@ -2,8 +2,9 @@
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
             <NotAuthorized>
-                <MudStack Justify="Justify.Center" Class="ma-10">
-                    <MudText>Sorry, you're not authorized to reach this page.</MudText>
+                <MudStack Justify="Justify.FlexStart" AlignItems="AlignItems.Start" Class="ma-10">
+                    <MudText>Você não tem autorização para acessar essa página.</MudText>
+                    <MudButton Color="Color.Secondary" Variant="Variant.Filled" Href="login">Acessar Painel</MudButton>
                 </MudStack>
             </NotAuthorized>
         </AuthorizeRouteView>
@@ -13,7 +14,6 @@
 
     <NotFound>
         <PageTitle>Not found</PageTitle>
-
         <LayoutView Layout="@typeof(MainLayout)">
             <p role="alert">Sorry, there's nothing at this address.</p>
         </LayoutView>

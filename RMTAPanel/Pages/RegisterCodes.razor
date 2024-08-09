@@ -8,7 +8,11 @@
         <MudItem sm="12">
             <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Códigos de Registro</MudText>
 
-            @if (_registerCodeList is { Count: > 0 })
+            @if (_registerCodeList == null)
+            {
+                <MudText>Carregando...</MudText>
+            }
+            else if (_registerCodeList is { Count: > 0 })
             {
                 <MudTable Hover="true" Items="@_registerCodeList">
                     <HeaderContent>
@@ -66,7 +70,7 @@
     [Inject] HttpClient? Http { get; set; }
     [Inject] IJSRuntime? Js { get; set; }
 
-    private List<RegisterCodeFormatted> _registerCodeList = new();
+    private List<RegisterCodeFormatted>? _registerCodeList;
 
     public class RegisterCodeFormatted : RegisterCode
     {
@@ -76,26 +80,22 @@
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            var resultList = await Http!.GetFromJsonAsync<List<RegisterCode>>("register-code");
-            if (resultList == null) return;
+        
+        var resultList = await Http!.GetFromJsonAsync<List<RegisterCode>>("register-code");
+        if (resultList == null) return;
 
-            foreach (var registerCode in resultList)
-            {
-                _registerCodeList.Add(new RegisterCodeFormatted
-                {
-                    Id = registerCode.Id,
-                    IsUsed = registerCode.IsUsed,
-                    User = registerCode.User,
-                    UserId = registerCode.UserId,
-                    ShowCode = false,
-                });
-            }
-        }
-        catch (HttpRequestException e)
+        _registerCodeList = new List<RegisterCodeFormatted>();
+
+        foreach (var registerCode in resultList)
         {
-            Console.WriteLine(e.Message);
+            _registerCodeList.Add(new RegisterCodeFormatted
+            {
+                Id = registerCode.Id,
+                IsUsed = registerCode.IsUsed,
+                User = registerCode.User,
+                UserId = registerCode.UserId,
+                ShowCode = false,
+            });
         }
     }
 
@@ -104,5 +104,4 @@
         if (!string.IsNullOrEmpty(code))
             await Js!.InvokeVoidAsync("copyTextToClipboard", code);
     }
-
 }

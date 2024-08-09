@@ -1,6 +1,5 @@
 ﻿@page "/users"
 @using Shared.User
-@attribute [Authorize]
 
 <PageTitle>Usuários</PageTitle>
 
@@ -9,7 +8,11 @@
         <MudItem sm="12">
             <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Usuários</MudText>
 
-            @if (_userList.Count > 0)
+            @if (_userList == null)
+            {
+                <MudText>Carregando...</MudText>
+            }
+            else if (_userList.Count > 0)
             {
                 <MudTable Hover="true" Items="@_userList">
                     <HeaderContent>
@@ -18,14 +21,14 @@
                         <MudTh>Email</MudTh>
                         <MudTh>Ativo</MudTh>
                     </HeaderContent>
-                    
+
                     <RowTemplate>
                         <MudTd DataLabel="Id">@context.Id</MudTd>
                         <MudTd DataLabel="Nome">@context.Name</MudTd>
                         <MudTd DataLabel="Email">@context.Email</MudTd>
                         <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim" : "Não")</MudTd>
                     </RowTemplate>
-                    
+
                     <PagerContent>
                         <MudTablePager/>
                     </PagerContent>
@@ -44,19 +47,12 @@
 
 @code {
     [Inject] HttpClient? Http { get; set; }
-    private List<UserMap> _userList = [];
+    private List<UserMap>? _userList;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            var result = await Http!.GetFromJsonAsync<Pagination<UserMap>>("user");
-            if (result?.Data != null) _userList = result.Data;
-        }
-        catch (HttpRequestException e)
-        {
-            Console.WriteLine(e.Message);
-        }
+        var result = await Http!.GetFromJsonAsync<Pagination<UserMap>>("user");
+        if (result?.Data != null) _userList = result.Data;
     }
 
 }

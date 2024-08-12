@@ -1,0 +1,41 @@
+@using Shared.User
+
+<MudDialog>
+    <TitleContent>
+        <TitleModal Label="Editar usuário"/>
+    </TitleContent>
+
+    <DialogContent>
+        <EditForm Model="@_userDto" OnValidSubmit="@SubmitForm">
+            <MudTextField
+                @bind-Value="_userDto.Name"
+                Label="Nome"
+                InputType="InputType.Text"
+                For="@(() => _userDto.Name)"/>
+
+            <MudTextField
+                @bind-Value="_userDto.Email"
+                Label="Email"
+                InputType="InputType.Email"
+                For="@(() => _userDto.Email)"/>
+
+            <MudStack Justify="Justify.FlexEnd" Row="true" Class="mt-5">
+                <MudButton OnClick="@Cancel">Cancelar</MudButton>
+                <MudButton ButtonType="ButtonType.Submit">Atualizar</MudButton>
+            </MudStack>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    private UpdateUserDto _userDto = new();
+
+    private async Task SubmitForm()
+    {
+        Console.WriteLine("#submit");
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

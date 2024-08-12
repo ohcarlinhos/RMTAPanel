@@ -1,0 +1,21 @@
+<MudDialog>
+    <TitleContent>
+        Deseja confirmar a desativação desse usuário?
+    </TitleContent>
+    <DialogActions>
+        <MudButton OnClick="@Cancel">Cancelar</MudButton>
+        <MudButton Color="Color.Error" OnClick="@Confirm">Confirmar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Confirm()
+    {
+    }
+
+}

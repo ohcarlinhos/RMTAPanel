@@ -28,11 +28,13 @@
                         <MudTd DataLabel="Nome">@context.Name</MudTd>
                         <MudTd DataLabel="Email">@context.Email</MudTd>
                         <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim" : "Não")</MudTd>
-                        <MudTd DataLabel="Ações" >
+                        
+                        <MudTd DataLabel="Ações">
                             <MudMenu Label="Ações" PositionAtCursor="true">
-                                <MudMenuItem>Editar</MudMenuItem>
-                                <MudMenuItem>Desativar</MudMenuItem>
-                                <MudMenuItem>Apagar</MudMenuItem>
+                                <MudMenuItem OnClick="EditUser">Editar</MudMenuItem>
+                                <MudMenuItem OnClick="EditPassword">Alterar senha</MudMenuItem>
+                                <MudMenuItem OnClick="Disable">Desativar</MudMenuItem>
+                                @* <MudMenuItem OnClick="Delete">Apagar</MudMenuItem> *@
                             </MudMenu>
                         </MudTd>
                     </RowTemplate>
@@ -55,6 +57,7 @@
 
 @code {
     [Inject] HttpClient? Http { get; set; }
+    [Inject] IDialogService? DialogService { get; set; }
     private List<UserMap>? _userList;
 
     protected override async Task OnInitializedAsync()
@@ -62,5 +65,54 @@
         var result = await Http!.GetFromJsonAsync<Pagination<UserMap>>("user");
         if (result?.Data != null) _userList = result.Data;
     }
+
+    private Task EditUser()
+    {
+        var options = new DialogOptions
+        {
+            CloseButton = true, 
+            FullWidth = true, 
+            CloseOnEscapeKey = false, 
+            BackdropClick = false
+        };
+
+        return DialogService!.ShowAsync<EditUserModal>("Editar usuáiro", options);
+    }
+
+    private Task EditPassword()
+    {
+        var options = new DialogOptions
+        {
+            CloseButton = true, 
+            FullWidth = true, 
+            CloseOnEscapeKey = false, 
+            BackdropClick = false
+        };
+        
+        return DialogService!.ShowAsync<EditPasswordModal>("Alterar senha", options);
+    }
+    
+    private Task Disable()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = false, 
+            BackdropClick = false
+        };
+        
+        return DialogService!.ShowAsync<DisableUserModal>("Desativar usuário", options);
+    }
+    
+    // private Task Delete()
+    // {
+    //     var options = new DialogOptions
+    //     {
+    //         CloseOnEscapeKey = false, 
+    //         BackdropClick = false,
+    //         
+    //     };
+    //     
+    //     return DialogService!.ShowAsync<DeletePasswordModal>("Apagar usuário", options);
+    // }
 
 }

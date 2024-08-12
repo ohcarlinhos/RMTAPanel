@@ -1,0 +1,8 @@
+@if (string.IsNullOrEmpty(Label) == false)
+{
+    <MudText HtmlTag="h2" Typo="Typo.h6">@Label</MudText>
+}
+
+@code {
+    [Parameter] public string? Label { get; set; }
+}

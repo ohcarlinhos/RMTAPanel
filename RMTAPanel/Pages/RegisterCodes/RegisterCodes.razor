@@ -20,7 +20,9 @@
                         <MudTh>Disponível</MudTh>
                         <MudTh>Usada por</MudTh>
                         <MudTh>Para uso de</MudTh>
+                        <MudTh></MudTh>
                     </HeaderContent>
+                    
                     <RowTemplate>
                         <MudTd DataLabel="Chave">
                             <MudToggleIconButton
@@ -50,6 +52,11 @@
                         <MudTd DataLabel="Disponível">@(!context.IsUsed ? "Sim" : "Não") </MudTd>
                         <MudTd DataLabel="Usada por">@(!string.IsNullOrEmpty(context.User?.Name) ? context.User.Name : "-")</MudTd>
                         <MudTd DataLabel="Para uso de">@(!string.IsNullOrEmpty(context.Email) ? context.Email : "-")</MudTd>
+                        <MudTd DataLabel="Ações">
+                            <MudMenu Label="Ações" PositionAtCursor="true">
+                                <MudMenuItem>Excluir</MudMenuItem>
+                            </MudMenu>
+                        </MudTd>
                     </RowTemplate>
                     <PagerContent>
                         <MudTablePager/>

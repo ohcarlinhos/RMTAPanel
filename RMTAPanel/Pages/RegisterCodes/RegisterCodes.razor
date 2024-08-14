@@ -22,7 +22,7 @@
                         <MudTh>Para uso de</MudTh>
                         <MudTh></MudTh>
                     </HeaderContent>
-                    
+
                     <RowTemplate>
                         <MudTd DataLabel="Chave">
                             <MudToggleIconButton
@@ -54,7 +54,7 @@
                         <MudTd DataLabel="Para uso de">@(!string.IsNullOrEmpty(context.Email) ? context.Email : "-")</MudTd>
                         <MudTd DataLabel="Ações">
                             <MudMenu Label="Ações" PositionAtCursor="true">
-                                <MudMenuItem>Excluir</MudMenuItem>
+                                <MudMenuItem OnClick="() => Delete(context)">Excluir</MudMenuItem>
                             </MudMenu>
                         </MudTd>
                     </RowTemplate>
@@ -77,6 +77,7 @@
     [Inject] HttpClient? Http { get; set; }
     [Inject] IJSRuntime? Js { get; set; }
     [Inject] ISnackbar? Snackbar { get; set; }
+    [Inject] IDialogService? DialogService { get; set; }
 
     private List<RegisterCodeFormatted>? _registerCodeList;
 
@@ -118,6 +119,23 @@
     {
         if (!string.IsNullOrEmpty(code))
             await Js!.InvokeVoidAsync("copyTextToClipboard", code);
+    }
+
+    private Task Delete(RegisterCode registerCode)
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = false,
+            BackdropClick = false,
+            MaxWidth = MaxWidth.ExtraSmall
+        };
+        
+        var dialogParams = new DialogParameters<DeleteRegisterCodeModal>
+        {
+            { "RegisterCode", registerCode }
+        };
+
+        return DialogService!.ShowAsync<DeleteRegisterCodeModal>("Apagar código de registro", dialogParams, options);
     }
 
 }

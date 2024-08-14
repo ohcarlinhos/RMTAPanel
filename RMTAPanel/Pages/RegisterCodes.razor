@@ -1,4 +1,5 @@
 ﻿@page "/register-codes"
+@using System.Net
 
 <PageTitle>Códigos de Registro</PageTitle>
 
@@ -68,6 +69,7 @@
 @code {
     [Inject] HttpClient? Http { get; set; }
     [Inject] IJSRuntime? Js { get; set; }
+    [Inject] ISnackbar? Snackbar { get; set; }
 
     private List<RegisterCodeFormatted>? _registerCodeList;
 
@@ -79,22 +81,29 @@
 
     protected override async Task OnInitializedAsync()
     {
-        
-        var resultList = await Http!.GetFromJsonAsync<List<RegisterCode>>("register-code");
-        if (resultList == null) return;
-
-        _registerCodeList = new List<RegisterCodeFormatted>();
-
-        foreach (var registerCode in resultList)
+        try
         {
-            _registerCodeList.Add(new RegisterCodeFormatted
+            var resultList = await Http!.GetFromJsonAsync<List<RegisterCode>>("register-code");
+            if (resultList == null) return;
+
+            _registerCodeList = new List<RegisterCodeFormatted>();
+
+            foreach (var registerCode in resultList)
             {
-                Id = registerCode.Id,
-                IsUsed = registerCode.IsUsed,
-                User = registerCode.User,
-                UserId = registerCode.UserId,
-                ShowCode = false,
-            });
+                _registerCodeList.Add(new RegisterCodeFormatted
+                {
+                    Id = registerCode.Id,
+                    IsUsed = registerCode.IsUsed,
+                    User = registerCode.User,
+                    UserId = registerCode.UserId,
+                    ShowCode = false,
+                });
+            }
+        }
+        catch (HttpRequestException e)
+        {
+            if (e.StatusCode == HttpStatusCode.Forbidden)
+                Snackbar!.Add(ApiErrors.Forbidden, Severity.Error);
         }
     }
 
@@ -103,4 +112,5 @@
         if (!string.IsNullOrEmpty(code))
             await Js!.InvokeVoidAsync("copyTextToClipboard", code);
     }
+
 }

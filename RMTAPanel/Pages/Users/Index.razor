@@ -1,5 +1,6 @@
 ﻿@page "/users"
 @using Shared.User
+@using System.Net
 
 <PageTitle>Usuários</PageTitle>
 
@@ -28,13 +29,13 @@
                         <MudTd DataLabel="Nome">@context.Name</MudTd>
                         <MudTd DataLabel="Email">@context.Email</MudTd>
                         <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim" : "Não")</MudTd>
-                        
+
                         <MudTd DataLabel="Ações">
                             <MudMenu Label="Ações" PositionAtCursor="true">
-                                <MudMenuItem OnClick="EditUser">Editar</MudMenuItem>
-                                <MudMenuItem OnClick="EditPassword">Alterar senha</MudMenuItem>
-                                <MudMenuItem OnClick="Disable">Desativar</MudMenuItem>
-                                @* <MudMenuItem OnClick="Delete">Apagar</MudMenuItem> *@
+                                <MudMenuItem OnClick="() => EditUser(context)">Editar</MudMenuItem>
+                                <MudMenuItem OnClick="() => EditPassword(context.Id)">Alterar senha</MudMenuItem>
+                                <MudMenuItem OnClick="() => Disable(context)">Desativar</MudMenuItem>
+                                @* <MudMenuItem OnClick="Delete">Apagar</MudMen uItem> *@
                             </MudMenu>
                         </MudTd>
                     </RowTemplate>
@@ -76,43 +77,59 @@
         }
     }
 
-    private Task EditUser()
+    private Task EditUser(UserMap user)
     {
         var options = new DialogOptions
         {
-            CloseButton = true, 
-            FullWidth = true, 
-            CloseOnEscapeKey = false, 
+            CloseButton = true,
+            FullWidth = true,
+            CloseOnEscapeKey = false,
             BackdropClick = false
         };
 
-        return DialogService!.ShowAsync<EditUserModal>("Editar usuáiro", options);
+        var dialogParams = new DialogParameters
+        {
+            { "User", user }
+        };
+
+        return DialogService!.ShowAsync<EditUserModal>("Editar usuáiro", dialogParams, options);
     }
 
-    private Task EditPassword()
+    private Task EditPassword(int id)
     {
         var options = new DialogOptions
         {
-            CloseButton = true, 
-            FullWidth = true, 
-            CloseOnEscapeKey = false, 
+            CloseButton = true,
+            FullWidth = true,
+            CloseOnEscapeKey = false,
             BackdropClick = false
         };
-        
-        return DialogService!.ShowAsync<EditPasswordModal>("Alterar senha", options);
+
+        var dialogParams = new DialogParameters<EditPasswordModal>
+        {
+            { "Id", id }
+        };
+
+        return DialogService!.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
     }
-    
-    private Task Disable()
+
+    private Task Disable(UserMap user)
     {
         var options = new DialogOptions
         {
-            CloseOnEscapeKey = false, 
-            BackdropClick = false
+            CloseOnEscapeKey = false,
+            BackdropClick = false,
+            MaxWidth = MaxWidth.ExtraSmall
         };
-        
-        return DialogService!.ShowAsync<DisableUserModal>("Desativar usuário", options);
+
+        var dialogParams = new DialogParameters<DisableUserModal>
+        {
+            { "User", user }
+        };
+
+        return DialogService!.ShowAsync<DisableUserModal>("Desativar usuário", dialogParams, options);
     }
-    
+
     // private Task Delete()
     // {
     //     var options = new DialogOptions

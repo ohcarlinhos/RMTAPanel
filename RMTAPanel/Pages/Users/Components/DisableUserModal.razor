@@ -1,7 +1,9 @@
+@using Shared.User
 <MudDialog>
     <TitleContent>
-        Deseja confirmar a desativação desse usuário?
+        Deseja confirmar a desativação do usuário "@User.Name"?
     </TitleContent>
+    
     <DialogActions>
         <MudButton OnClick="@Cancel">Cancelar</MudButton>
         <MudButton Color="Color.Error" OnClick="@Confirm">Confirmar</MudButton>
@@ -10,9 +12,10 @@
 
 @code {
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public UserMap User { get; set; } = new();
 
-    private void Cancel() => MudDialog.Cancel();
+    private void Cancel() => MudDialog!.Cancel();
 
     private void Confirm()
     {

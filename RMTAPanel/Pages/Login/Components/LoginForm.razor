@@ -62,7 +62,7 @@
         }
         catch (HttpRequestException)
         {
-            Snackbar.Add(ApiErrors.GenericErrorServe, Severity.Error);
+            Snackbar!.Add(ApiErrors.GenericErrorServe, Severity.Error);
         }
     }
 }

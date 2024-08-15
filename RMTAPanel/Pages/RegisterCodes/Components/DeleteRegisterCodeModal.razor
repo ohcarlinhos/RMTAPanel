@@ -3,15 +3,19 @@
         Deseja confirmar a exclusão desse código de registro?
     </TitleContent>
 
-    <DialogActions>
-        <MudButton OnClick="Cancel">Cancelar</MudButton>
-        <MudButton Color="Color.Error">Confirmar</MudButton>
-    </DialogActions>
+    <DialogContent>
+        <CustomActionsModal IsFetch="_isFetch">
+            <MudButton OnClick="Cancel">Cancelar</MudButton>
+            <MudButton Color="Color.Error">Confirmar</MudButton>
+        </CustomActionsModal>
+    </DialogContent>
 </MudDialog>
 
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter] public RegisterCode RegisterCode { get; set; } = new();
+
+    private bool _isFetch;
 
     private void Cancel() => MudDialog!.Cancel();
 }

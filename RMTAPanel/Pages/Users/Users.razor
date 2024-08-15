@@ -66,11 +66,6 @@
         {
             var authState = await AuthState;
             MyClaims = authState.User;
-
-            foreach (var myClaimsClaim in MyClaims.Claims)
-            {
-                Console.WriteLine(myClaimsClaim.ToString());
-            }
         }
     }
 

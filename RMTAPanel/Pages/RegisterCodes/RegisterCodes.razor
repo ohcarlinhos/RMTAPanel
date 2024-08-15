@@ -1,6 +1,12 @@
 ﻿@page "/register-codes"
 @using System.Net
 
+@inject HttpClient Http 
+@inject IJSRuntime Js 
+@inject ISnackbar Snackbar 
+@inject IDialogService DialogService 
+
+
 <PageTitle>Códigos de Registro</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-20">
@@ -74,11 +80,6 @@
 </MudContainer>
 
 @code {
-    [Inject] HttpClient? Http { get; set; }
-    [Inject] IJSRuntime? Js { get; set; }
-    [Inject] ISnackbar? Snackbar { get; set; }
-    [Inject] IDialogService? DialogService { get; set; }
-
     private List<RegisterCodeFormatted>? _registerCodeList;
 
     public class RegisterCodeFormatted : RegisterCode
@@ -91,7 +92,7 @@
     {
         try
         {
-            var resultList = await Http!.GetFromJsonAsync<List<RegisterCode>>("register-code");
+            var resultList = await Http.GetFromJsonAsync<List<RegisterCode>>("register-code");
             if (resultList == null) return;
 
             _registerCodeList = new List<RegisterCodeFormatted>();
@@ -111,14 +112,14 @@
         catch (HttpRequestException e)
         {
             if (e.StatusCode == HttpStatusCode.Forbidden)
-                Snackbar!.Add(ApiErrors.Forbidden, Severity.Error);
+                Snackbar.Add(ApiErrors.Forbidden, Severity.Error);
         }
     }
 
     private async Task CopyToClipboard(string code)
     {
         if (!string.IsNullOrEmpty(code))
-            await Js!.InvokeVoidAsync("copyTextToClipboard", code);
+            await Js.InvokeVoidAsync("copyTextToClipboard", code);
     }
 
     private Task Delete(RegisterCode registerCode)
@@ -129,13 +130,13 @@
             BackdropClick = false,
             MaxWidth = MaxWidth.ExtraSmall
         };
-        
+
         var dialogParams = new DialogParameters<DeleteRegisterCodeModal>
         {
             { "RegisterCode", registerCode }
         };
 
-        return DialogService!.ShowAsync<DeleteRegisterCodeModal>("Apagar código de registro", dialogParams, options);
+        return DialogService.ShowAsync<DeleteRegisterCodeModal>("Apagar código de registro", dialogParams, options);
     }
 
 }

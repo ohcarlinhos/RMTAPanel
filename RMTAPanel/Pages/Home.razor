@@ -1,9 +1,11 @@
 ﻿@page "/"
+@inject NavigationManager Navigation
 
-<PageTitle>Dashboard</PageTitle>
+@code {
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="py-20">
-    <MudPaper Class="pa-5">
-        <MudText>Sou a dashboard, porem não tenho nada.</MudText>
-    </MudPaper>
-</MudContainer>
+    protected override void OnInitialized()
+    {
+        Navigation.NavigateTo("users");
+    }
+
+}

@@ -10,13 +10,8 @@
 
     <AuthorizeView>
         <Authorized>
-            <MudNavLink Href="/" Match="NavLinkMatch.All">Página Inicial</MudNavLink>
             <MudNavLink Href="/users" Match="NavLinkMatch.Prefix">Usuários</MudNavLink>
             <MudNavLink Href="/register-codes" Match="NavLinkMatch.Prefix">Códigos de Registro</MudNavLink>
         </Authorized>
     </AuthorizeView>
 </MudNavMenu>
-
-@code {
-
-}

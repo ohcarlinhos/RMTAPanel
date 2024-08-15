@@ -1,0 +1,22 @@
+<MudStack AlignItems="AlignItems.Center" Row="true" Justify="Justify.SpaceBetween">
+    @if (IsFetch)
+    {
+        <MudProgressCircular Indeterminate="true" Size="Size.Small"/>
+    }
+    else
+    {
+        <MudPaper></MudPaper>
+    }
+
+    <MudStack Row="true">
+        @if (ChildContent != null)
+        {
+            @ChildContent
+        }
+    </MudStack>
+</MudStack>
+
+@code {
+    [Parameter] public bool IsFetch { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

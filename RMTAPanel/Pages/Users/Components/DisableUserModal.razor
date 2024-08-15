@@ -7,23 +7,13 @@
     </TitleContent>
 
     <DialogContent>
-        <MudStack AlignItems="AlignItems.Center" Row="true" Justify="Justify.SpaceBetween">
-            @if (_isFetch)
-            {
-                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2"/>
-            }
-            else
-            {
-                <MudPaper></MudPaper>
-            }
+        <CustomActionsModal IsFetch="@_isFetch">
+            <MudButton OnClick="@Cancel" Disabled="_isFetch">Cancelar</MudButton>
 
-            <MudStack Row="true">
-                <MudButton OnClick="@Cancel" Disabled="_isFetch">Cancelar</MudButton>
-                <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="@Confirm" Disabled="_isFetch">
-                    Confirmar
-                </MudButton>
-            </MudStack>
-        </MudStack>
+            <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="@Confirm" Disabled="_isFetch">
+                Confirmar
+            </MudButton>
+        </CustomActionsModal>
     </DialogContent>
 
 </MudDialog>
@@ -36,7 +26,7 @@
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter] public UserMap User { get; set; } = new();
 
-    private bool _isFetch = false;
+    private bool _isFetch;
 
     private void Cancel() => MudDialog!.Cancel();
 
@@ -64,4 +54,5 @@
             _isFetch = false;
         }
     }
+
 }

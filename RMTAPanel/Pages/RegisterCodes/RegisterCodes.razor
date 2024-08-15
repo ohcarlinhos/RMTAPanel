@@ -1,10 +1,9 @@
 ﻿@page "/register-codes"
-@using System.Net
 
 @inject HttpClient Http 
 @inject IJSRuntime Js 
-@inject ISnackbar Snackbar 
 @inject IDialogService DialogService 
+@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
 
 
 <PageTitle>Códigos de Registro</PageTitle>
@@ -13,74 +12,62 @@
     <MudGrid>
         <MudItem sm="12">
             <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Códigos de Registro</MudText>
+            
+            <MudTable Hover="true" Items="@_registerCodeList" Loading="@_isFetch">
+                <HeaderContent>
+                    <MudTh>Chave</MudTh>
+                    <MudTh>Disponível</MudTh>
+                    <MudTh>Usada por</MudTh>
+                    <MudTh>Para uso de</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
 
-            @if (_registerCodeList == null)
-            {
-                <MudText>Carregando...</MudText>
-            }
-            else if (_registerCodeList is { Count: > 0 })
-            {
-                <MudTable Hover="true" Items="@_registerCodeList">
-                    <HeaderContent>
-                        <MudTh>Chave</MudTh>
-                        <MudTh>Disponível</MudTh>
-                        <MudTh>Usada por</MudTh>
-                        <MudTh>Para uso de</MudTh>
-                        <MudTh></MudTh>
-                    </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Chave">
+                        <MudToggleIconButton
+                            @bind-Toggled="context.ShowCode"
+                            Icon="@Icons.Material.Filled.CodeOff"
+                            ToggledIcon="@Icons.Material.Filled.Code">
+                        </MudToggleIconButton>
 
-                    <RowTemplate>
-                        <MudTd DataLabel="Chave">
-                            <MudToggleIconButton
-                                @bind-Toggled="context.ShowCode"
-                                Icon="@Icons.Material.Filled.CodeOff"
-                                ToggledIcon="@Icons.Material.Filled.Code">
-                            </MudToggleIconButton>
-
-                            @if (context.ShowCode)
-                            {
-                                <section class="register_code__copy">
-                                    <span Class="register_code__id">@context.Id</span>
-                                    @if (!context.IsUsed)
-                                    {
-                                        <MudIconButton
-                                            Icon="@Icons.Material.Filled.ContentCopy"
-                                            Size="Size.Small"
-                                            OnClick="() => CopyToClipboard(context.Id)"/>
-                                    }
-                                </section>
-                            }
-                            else
-                            {
-                                @("...")
-                            }
-                        </MudTd>
-                        <MudTd DataLabel="Disponível">@(!context.IsUsed ? "Sim" : "Não") </MudTd>
-                        <MudTd DataLabel="Usada por">@(!string.IsNullOrEmpty(context.User?.Name) ? context.User.Name : "-")</MudTd>
-                        <MudTd DataLabel="Para uso de">@(!string.IsNullOrEmpty(context.Email) ? context.Email : "-")</MudTd>
-                        <MudTd DataLabel="Ações">
-                            <MudMenu Label="Ações" PositionAtCursor="true">
-                                <MudMenuItem OnClick="() => Delete(context)">Excluir</MudMenuItem>
-                            </MudMenu>
-                        </MudTd>
-                    </RowTemplate>
-                    <PagerContent>
-                        <MudTablePager/>
-                    </PagerContent>
-                </MudTable>
-            }
-            else
-            {
-                <MudPaper Class="pa-5">
-                    <MudText>Nenhum código de registro encontrado.</MudText>
-                </MudPaper>
-            }
+                        @if (context.ShowCode)
+                        {
+                            <section class="register_code__copy">
+                                <span Class="register_code__id">@context.Id</span>
+                                @if (!context.IsUsed)
+                                {
+                                    <MudIconButton
+                                        Icon="@Icons.Material.Filled.ContentCopy"
+                                        Size="Size.Small"
+                                        OnClick="() => CopyToClipboard(context.Id)"/>
+                                }
+                            </section>
+                        }
+                        else
+                        {
+                            @("...")
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Disponível">@(!context.IsUsed ? "Sim" : "Não") </MudTd>
+                    <MudTd DataLabel="Usada por">@(!string.IsNullOrEmpty(context.User?.Name) ? context.User.Name : "-")</MudTd>
+                    <MudTd DataLabel="Para uso de">@(!string.IsNullOrEmpty(context.Email) ? context.Email : "-")</MudTd>
+                    <MudTd DataLabel="Ações">
+                        <MudMenu Label="Ações" PositionAtCursor="true">
+                            <MudMenuItem OnClick="() => Delete(context)">Excluir</MudMenuItem>
+                        </MudMenu>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager/>
+                </PagerContent>
+            </MudTable>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
-    private List<RegisterCodeFormatted>? _registerCodeList;
+    private List<RegisterCodeFormatted>? _registerCodeList = new();
+    private bool _isFetch;
 
     public class RegisterCodeFormatted : RegisterCode
     {
@@ -92,6 +79,7 @@
     {
         try
         {
+            _isFetch = true;
             var resultList = await Http.GetFromJsonAsync<List<RegisterCode>>("register-code");
             if (resultList == null) return;
 
@@ -111,8 +99,11 @@
         }
         catch (HttpRequestException e)
         {
-            if (e.StatusCode == HttpStatusCode.Forbidden)
-                Snackbar.Add(ApiErrors.Forbidden, Severity.Error);
+            HandleHttpErrorSnackbar.GeneralError(e);
+        }
+        finally
+        {
+            _isFetch = false;
         }
     }
 

@@ -1,8 +1,14 @@
 ﻿@page "/users"
+
 @using Shared.User
 @using System.Net
 @using System.Security.Claims
 @using Shared.General.Util
+
+@inject HttpClient Http
+@inject IDialogService DialogService 
+@inject ISnackbar Snackbar 
+
 
 <PageTitle>Usuários</PageTitle>
 
@@ -29,7 +35,7 @@
                         <MudMenu Label="Ações" PositionAtCursor="true">
                             <MudMenuItem OnClick="() => EditUser(context)">Editar</MudMenuItem>
                             <MudMenuItem OnClick="() => EditPassword(context.Id)">Alterar senha</MudMenuItem>
-                           
+
                             <MudMenuItem
                                 OnClick="() => Disable(context)"
                                 Disabled="@(context.Id == UserClaims.Id(MyClaims))">
@@ -47,10 +53,6 @@
 </MudContainer>
 
 @code {
-    [Inject] HttpClient? Http { get; set; }
-    [Inject] IDialogService? DialogService { get; set; }
-    [Inject] ISnackbar? Snackbar { get; set; }
-
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
 
     private ClaimsPrincipal MyClaims { get; set; } = new();
@@ -74,13 +76,13 @@
         try
         {
             _isFetch = true;
-            var response = await Http!.GetFromJsonAsync<Pagination<UserMap>>("user");
+            var response = await Http.GetFromJsonAsync<Pagination<UserMap>>("user");
             if (response?.Data != null) _userList = response.Data;
         }
         catch (HttpRequestException e)
         {
             if (e.StatusCode == HttpStatusCode.Forbidden)
-                Snackbar!.Add(ApiErrors.Forbidden, Severity.Error);
+                Snackbar.Add(ApiErrors.Forbidden, Severity.Error);
         }
         finally
         {
@@ -103,7 +105,7 @@
             { "User", user }
         };
 
-        return DialogService!.ShowAsync<EditUserModal>("Editar usuáiro", dialogParams, options);
+        return DialogService.ShowAsync<EditUserModal>("Editar usuáiro", dialogParams, options);
     }
 
     private Task EditPassword(int id)
@@ -121,7 +123,7 @@
             { "Id", id }
         };
 
-        return DialogService!.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
+        return DialogService.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
     }
 
     private async Task Disable(UserMap user)
@@ -138,7 +140,7 @@
             { "User", user }
         };
 
-        var dialog = await DialogService!.ShowAsync<DisableUserModal>("Desativar usuário", dialogParams, options);
+        var dialog = await DialogService.ShowAsync<DisableUserModal>("Desativar usuário", dialogParams, options);
         var result = await dialog.Result;
 
         if (result!.Canceled == false)

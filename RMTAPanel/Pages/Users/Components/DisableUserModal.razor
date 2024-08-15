@@ -1,6 +1,11 @@
 @using Shared.User
 @using RMTAPanel.Utils
 
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+
+
 <MudDialog>
     <TitleContent>
         Deseja confirmar a @(User.IsActive ? "desativação" : "ativação") do usuário "@User.Name"?
@@ -19,10 +24,6 @@
 </MudDialog>
 
 @code {
-    [Inject] HttpClient? Http { get; set; }
-    [Inject] ISnackbar? Snackbar { get; set; }
-    [Inject] HandleHttpErrorSnackbar? HandleHttpErrorSnackbar { get; set; }
-
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter] public UserMap User { get; set; } = new();
 
@@ -39,10 +40,10 @@
             var isActive = !User.IsActive;
             var term = isActive ? "ativado" : "desativado";
 
-            var response = await Http!.PostAsJsonAsync($"user/disable/{User.Id}", new { IsActive = isActive });
-            if (await HandleHttpErrorSnackbar!.IsNotOk(response)) return;
+            var response = await Http.PostAsJsonAsync($"user/disable/{User.Id}", new { IsActive = isActive });
+            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
 
-            Snackbar!.Add($"Usuário {term} com sucesso.", Severity.Success);
+            Snackbar.Add($"Usuário {term} com sucesso.", Severity.Success);
             MudDialog!.Close();
         }
         catch (HttpRequestException e)

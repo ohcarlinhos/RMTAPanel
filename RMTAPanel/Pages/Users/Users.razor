@@ -1,6 +1,8 @@
 ﻿@page "/users"
 @using Shared.User
 @using System.Net
+@using System.Security.Claims
+@using Shared.General.Util
 
 <PageTitle>Usuários</PageTitle>
 
@@ -8,65 +10,75 @@
     <MudGrid>
         <MudItem sm="12">
             <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Usuários</MudText>
+            <MudTable Hover="true" Items="@_userList" Loading="@_isFetch">
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>Nome</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Ativo</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
 
-            @if (_userList == null)
-            {
-                <MudText>Carregando...</MudText>
-            }
-            else if (_userList.Count > 0)
-            {
-                <MudTable Hover="true" Items="@_userList">
-                    <HeaderContent>
-                        <MudTh>Id</MudTh>
-                        <MudTh>Nome</MudTh>
-                        <MudTh>Email</MudTh>
-                        <MudTh>Ativo</MudTh>
-                        <MudTh></MudTh>
-                    </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Id">@context.Id</MudTd>
+                    <MudTd DataLabel="Nome">@context.Name</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim" : "Não")</MudTd>
 
-                    <RowTemplate>
-                        <MudTd DataLabel="Id">@context.Id</MudTd>
-                        <MudTd DataLabel="Nome">@context.Name</MudTd>
-                        <MudTd DataLabel="Email">@context.Email</MudTd>
-                        <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim" : "Não")</MudTd>
-
-                        <MudTd DataLabel="Ações">
-                            <MudMenu Label="Ações" PositionAtCursor="true">
-                                <MudMenuItem OnClick="() => EditUser(context)">Editar</MudMenuItem>
-                                <MudMenuItem OnClick="() => EditPassword(context.Id)">Alterar senha</MudMenuItem>
-                                <MudMenuItem OnClick="() => Disable(context)">Desativar</MudMenuItem>
-                                @* <MudMenuItem OnClick="Delete">Apagar</MudMen uItem> *@
-                            </MudMenu>
-                        </MudTd>
-                    </RowTemplate>
-
-                    <PagerContent>
-                        <MudTablePager/>
-                    </PagerContent>
-                </MudTable>
-            }
-            else
-            {
-                <MudPaper Class="pa-5">
-                    <MudText>Nenhum usuário encontrado.</MudText>
-                </MudPaper>
-            }
+                    <MudTd DataLabel="Ações">
+                        <MudMenu Label="Ações" PositionAtCursor="true">
+                            <MudMenuItem OnClick="() => EditUser(context)">Editar</MudMenuItem>
+                            <MudMenuItem OnClick="() => EditPassword(context.Id)">Alterar senha</MudMenuItem>
+                           
+                            <MudMenuItem
+                                OnClick="() => Disable(context)"
+                                Disabled="@(context.Id == UserClaims.Id(MyClaims))">
+                                @(context.IsActive ? "Desativar" : "Ativar")
+                            </MudMenuItem>
+                        </MudMenu>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager/>
+                </PagerContent>
+            </MudTable>
         </MudItem>
     </MudGrid>
 </MudContainer>
-
 
 @code {
     [Inject] HttpClient? Http { get; set; }
     [Inject] IDialogService? DialogService { get; set; }
     [Inject] ISnackbar? Snackbar { get; set; }
 
-    private List<UserMap>? _userList;
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+
+    private ClaimsPrincipal MyClaims { get; set; } = new();
+
+    private List<UserMap>? _userList = new();
+    private bool _isFetch;
 
     protected override async Task OnInitializedAsync()
     {
+        await GetUsers();
+
+        if (AuthState != null)
+        {
+            var authState = await AuthState;
+            MyClaims = authState.User;
+
+            foreach (var myClaimsClaim in MyClaims.Claims)
+            {
+                Console.WriteLine(myClaimsClaim.ToString());
+            }
+        }
+    }
+
+    private async Task GetUsers()
+    {
         try
         {
+            _isFetch = true;
             var response = await Http!.GetFromJsonAsync<Pagination<UserMap>>("user");
             if (response?.Data != null) _userList = response.Data;
         }
@@ -74,6 +86,10 @@
         {
             if (e.StatusCode == HttpStatusCode.Forbidden)
                 Snackbar!.Add(ApiErrors.Forbidden, Severity.Error);
+        }
+        finally
+        {
+            _isFetch = false;
         }
     }
 
@@ -113,7 +129,7 @@
         return DialogService!.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
     }
 
-    private Task Disable(UserMap user)
+    private async Task Disable(UserMap user)
     {
         var options = new DialogOptions
         {
@@ -127,19 +143,13 @@
             { "User", user }
         };
 
-        return DialogService!.ShowAsync<DisableUserModal>("Desativar usuário", dialogParams, options);
-    }
+        var dialog = await DialogService!.ShowAsync<DisableUserModal>("Desativar usuário", dialogParams, options);
+        var result = await dialog.Result;
 
-    // private Task Delete()
-    // {
-    //     var options = new DialogOptions
-    //     {
-    //         CloseOnEscapeKey = false, 
-    //         BackdropClick = false,
-    //         
-    //     };
-    //     
-    //     return DialogService!.ShowAsync<DeletePasswordModal>("Apagar usuário", options);
-    // }
+        if (result!.Canceled == false)
+        {
+            await GetUsers();
+        }
+    }
 
 }

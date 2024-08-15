@@ -1,24 +1,67 @@
 @using Shared.User
+@using RMTAPanel.Utils
+
 <MudDialog>
     <TitleContent>
-        Deseja confirmar a desativação do usuário "@User.Name"?
+        Deseja confirmar a @(User.IsActive ? "desativação" : "ativação") do usuário "@User.Name"?
     </TitleContent>
-    
-    <DialogActions>
-        <MudButton OnClick="@Cancel">Cancelar</MudButton>
-        <MudButton Color="Color.Error" OnClick="@Confirm">Confirmar</MudButton>
-    </DialogActions>
+
+    <DialogContent>
+        <MudStack AlignItems="AlignItems.Center" Row="true" Justify="Justify.SpaceBetween">
+            @if (_isFetch)
+            {
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2"/>
+            }
+            else
+            {
+                <MudPaper></MudPaper>
+            }
+
+            <MudStack Row="true">
+                <MudButton OnClick="@Cancel" Disabled="_isFetch">Cancelar</MudButton>
+                <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="@Confirm" Disabled="_isFetch">
+                    Confirmar
+                </MudButton>
+            </MudStack>
+        </MudStack>
+    </DialogContent>
+
 </MudDialog>
 
 @code {
+    [Inject] HttpClient? Http { get; set; }
+    [Inject] ISnackbar? Snackbar { get; set; }
+    [Inject] HandleHttpErrorSnackbar? HandleHttpErrorSnackbar { get; set; }
 
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
     [Parameter] public UserMap User { get; set; } = new();
 
+    private bool _isFetch = false;
+
     private void Cancel() => MudDialog!.Cancel();
 
-    private void Confirm()
+    private async Task Confirm()
     {
-    }
+        try
+        {
+            _isFetch = true;
 
+            var isActive = !User.IsActive;
+            var term = isActive ? "ativado" : "desativado";
+
+            var response = await Http!.PostAsJsonAsync($"user/disable/{User.Id}", new { IsActive = isActive });
+            if (await HandleHttpErrorSnackbar!.IsNotOk(response)) return;
+
+            Snackbar!.Add($"Usuário {term} com sucesso.", Severity.Success);
+            MudDialog!.Close();
+        }
+        catch (HttpRequestException e)
+        {
+            HandleHttpErrorSnackbar!.GeneralError(e);
+        }
+        finally
+        {
+            _isFetch = false;
+        }
+    }
 }

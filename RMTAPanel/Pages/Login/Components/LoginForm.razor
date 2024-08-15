@@ -2,6 +2,13 @@
 @using RMTAPanel.Services
 @using RMTAPanel.Utils
 
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject ILocalStorageService LocalStorage
+@inject CustomAuthStateProvider AuthProvider
+@inject AuthenticateService AuthService
+@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+
 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
     <MudPaper Class="pa-4" Width="100%">
         <MudText Typo="Typo.h6" HtmlTag="h3">Acessar</MudText>
@@ -34,7 +41,8 @@
                     }
                     else
                     {
-                        @("Acessar");
+                        @("Acessar")
+                        ;
                     }
                 </MudButton>
             </MudStack>
@@ -43,14 +51,7 @@
 </MudStack>
 
 @code {
-    [Inject] HttpClient? Http { get; set; }
-    [Inject] ISnackbar? Snackbar { get; set; }
-    [Inject] ILocalStorageService? LocalStorage { get; set; }
-    [Inject] CustomAuthStateProvider? AuthProvider { get; set; }
-    [Inject] AuthenticateService? AuthService { get; set; }
-    [Inject] HandleHttpErrorSnackbar? HandleHttpErrorSnackbar { get; set; }
-
-    LoginDto _loginDto = new() { Email = "carlos@teste.com", Password = "SAklsaj)238al!" };
+    private LoginDto _loginDto = new() { Email = "carlos@teste.com", Password = "SAklsaj)238al!" };
     private bool _isFetch;
 
     async Task SubmitForm()
@@ -58,16 +59,16 @@
         try
         {
             _isFetch = true;
-            var response = await Http!.PostAsJsonAsync("auth/login", _loginDto);
-            
-            if (await HandleHttpErrorSnackbar!.IsNotOk(response)) return;
+            var response = await Http.PostAsJsonAsync("auth/login", _loginDto);
+
+            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
 
             var content = await response.Content.ReadFromJsonAsync<JwtData>();
-            if (content != null) await AuthService!.SetSate(content.Token);
+            if (content != null) await AuthService.SetSate(content.Token);
         }
         catch (HttpRequestException e)
         {
-            HandleHttpErrorSnackbar!.GeneralError(e);
+            HandleHttpErrorSnackbar.GeneralError(e);
         }
         finally
         {

@@ -1,14 +1,12 @@
 ﻿@page "/users"
 
 @using Shared.User
-@using System.Net
 @using System.Security.Claims
 @using Shared.General.Util
 
 @inject HttpClient Http
-@inject IDialogService DialogService 
-@inject ISnackbar Snackbar 
-
+@inject IDialogService DialogService
+@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
 
 <PageTitle>Usuários</PageTitle>
 
@@ -16,6 +14,8 @@
     <MudGrid>
         <MudItem sm="12">
             <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Usuários</MudText>
+
+
             <MudTable Hover="true" Items="@_userList" Loading="@_isFetch">
                 <HeaderContent>
                     <MudTh>Id</MudTh>
@@ -44,6 +44,7 @@
                         </MudMenu>
                     </MudTd>
                 </RowTemplate>
+
                 <PagerContent>
                     <MudTablePager/>
                 </PagerContent>
@@ -81,8 +82,7 @@
         }
         catch (HttpRequestException e)
         {
-            if (e.StatusCode == HttpStatusCode.Forbidden)
-                Snackbar.Add(ApiErrors.Forbidden, Severity.Error);
+            HandleHttpErrorSnackbar.GeneralError(e);
         }
         finally
         {

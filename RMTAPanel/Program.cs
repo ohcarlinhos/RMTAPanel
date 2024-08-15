@@ -6,6 +6,7 @@ using Blazored.LocalStorage;
 using RMTAPanel;
 using RMTAPanel.Providers;
 using RMTAPanel.Services;
+using RMTAPanel.Utils;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -26,6 +27,8 @@ builder.Services.AddScoped<AuthenticationStateProvider>((provider) =>
 );
 
 builder.Services.AddScoped<AuthenticateService>();
+
+builder.Services.AddScoped<HandleHttpErrorSnackbar>();
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();

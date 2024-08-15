@@ -15,7 +15,9 @@ public class HandleHttpErrorSnackbar(ISnackbar snackbar)
         try
         {
             var errorContent = await httpResponseMessage.Content.ReadFromJsonAsync<ErrorResult>();
-            if (string.IsNullOrEmpty(errorContent?.Message)) httpResponseMessage.EnsureSuccessStatusCode();
+            if (errorContent == null || string.IsNullOrEmpty(errorContent.Message))
+                httpResponseMessage.EnsureSuccessStatusCode();
+            
             snackbar.Add(errorContent?.Message, Severity.Error);
             return true;
         }

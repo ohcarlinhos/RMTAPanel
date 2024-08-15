@@ -1,5 +1,6 @@
 @using Shared.Auth
 @using RMTAPanel.Services
+@using RMTAPanel.Utils
 
 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
     <MudPaper Class="pa-4" Width="100%">
@@ -25,8 +26,16 @@
                     Variant="Variant.Filled"
                     ButtonType="ButtonType.Submit"
                     Color="Color.Primary"
+                    Disabled="_isFetch"
                     Class="mt-4">
-                    Acessar
+                    @if (_isFetch)
+                    {
+                        <MudProgressCircular Indeterminate="true" Size="Size.Small"/>
+                    }
+                    else
+                    {
+                        @("Acessar");
+                    }
                 </MudButton>
             </MudStack>
         </EditForm>
@@ -39,30 +48,31 @@
     [Inject] ILocalStorageService? LocalStorage { get; set; }
     [Inject] CustomAuthStateProvider? AuthProvider { get; set; }
     [Inject] AuthenticateService? AuthService { get; set; }
+    [Inject] HandleHttpErrorSnackbar? HandleHttpErrorSnackbar { get; set; }
 
     LoginDto _loginDto = new() { Email = "carlos@teste.com", Password = "SAklsaj)238al!" };
+    private bool _isFetch;
 
     async Task SubmitForm()
     {
         try
         {
-            var response = await Http!
-                .PostAsJsonAsync("auth/login", _loginDto);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadFromJsonAsync<ErrorResult>();
-                if (string.IsNullOrEmpty(errorContent?.Message)) response.EnsureSuccessStatusCode();
-                Snackbar!.Add(errorContent?.Message, Severity.Error);
-                return;
-            }
+            _isFetch = true;
+            var response = await Http!.PostAsJsonAsync("auth/login", _loginDto);
+            
+            if (await HandleHttpErrorSnackbar!.IsNotOk(response)) return;
 
             var content = await response.Content.ReadFromJsonAsync<JwtData>();
-            if(content != null) await AuthService!.SetSate(content.Token);
+            if (content != null) await AuthService!.SetSate(content.Token);
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException e)
         {
-            Snackbar!.Add(ApiErrors.GenericErrorServe, Severity.Error);
+            HandleHttpErrorSnackbar!.GeneralError(e);
+        }
+        finally
+        {
+            _isFetch = false;
         }
     }
+
 }

@@ -1,0 +1,63 @@
+@inject HttpClient Http 
+@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Class="mb-4" Spacing="1">
+            @if (RegisterCode == null)
+            {
+                <MudText>Cada código gerado é de uso único.</MudText>
+            }
+            else
+            {
+                <CopyHiddenText Text="@RegisterCode.Id"/>
+            }
+        </MudStack>
+
+        <CustomActionsModal IsFetch="_isFetch">
+            @if (RegisterCode == null)
+            {
+                <MudButton OnClick="@Cancel" Disabled="_isFetch">Cancelar</MudButton>
+                <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="@Confirm" Disabled="_isFetch">Gerar</MudButton>
+            }
+            else
+            {
+                <MudButton OnClick="@(() => MudDialog!.Close())" Disabled="_isFetch">Fechar</MudButton>
+            }
+        </CustomActionsModal>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    private bool _isFetch;
+    private RegisterCode? RegisterCode { get; set; }
+
+    private void Cancel() => MudDialog!.Cancel();
+
+    private async Task Confirm()
+    {
+        try
+        {
+            _isFetch = true;
+            var response = await Http.PostAsJsonAsync("register-code", new { Email = "" });
+
+            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
+
+            var content = await response.Content.ReadFromJsonAsync<RegisterCode>();
+            if (content != null) RegisterCode = content;
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (HttpRequestException e)
+        {
+            HandleHttpErrorSnackbar.GeneralError(e);
+        }
+        finally
+        {
+            _isFetch = false;
+        }
+    }
+
+}

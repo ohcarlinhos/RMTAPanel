@@ -11,8 +11,12 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-20">
     <MudGrid>
         <MudItem sm="12">
-            <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Códigos de Registro</MudText>
-            
+            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pb-4">
+                <MudText Typo="Typo.h4" HtmlTag="h2">Códigos de Registro</MudText>
+                
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@Generate">Gerar Código</MudButton>
+            </MudStack>
+
             <MudTable Hover="true" Items="@_registerCodeList" Loading="@_isFetch">
                 <HeaderContent>
                     <MudTh>Chave</MudTh>
@@ -32,16 +36,7 @@
 
                         @if (context.ShowCode)
                         {
-                            <section class="register_code__copy">
-                                <span Class="register_code__id">@context.Id</span>
-                                @if (!context.IsUsed)
-                                {
-                                    <MudIconButton
-                                        Icon="@Icons.Material.Filled.ContentCopy"
-                                        Size="Size.Small"
-                                        OnClick="() => CopyToClipboard(context.Id)"/>
-                                }
-                            </section>
+                            <CopyHiddenText DisableCopy="@(context.IsUsed)" Text="@context.Id" />
                         }
                         else
                         {
@@ -107,19 +102,25 @@
         }
     }
 
-    private async Task CopyToClipboard(string code)
-    {
-        if (!string.IsNullOrEmpty(code))
-            await Js.InvokeVoidAsync("copyTextToClipboard", code);
-    }
-
-    private Task Delete(RegisterCode registerCode)
+    private Task Generate()
     {
         var options = new DialogOptions
         {
             CloseOnEscapeKey = false,
             BackdropClick = false,
             MaxWidth = MaxWidth.ExtraSmall
+        };
+        
+        return DialogService.ShowAsync<CreateRegisterCodeModal>("Gerar código de registro", options);
+    }
+    
+    private Task Delete(RegisterCode registerCode)
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = false,
+            BackdropClick = false,
+            MaxWidth = MaxWidth.ExtraSmall,
         };
 
         var dialogParams = new DialogParameters<DeleteRegisterCodeModal>

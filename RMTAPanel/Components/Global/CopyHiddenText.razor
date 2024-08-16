@@ -1,0 +1,25 @@
+@inject IJSRuntime Js
+
+<section class="copy_hidden_text__copy">
+    <span class="copy_hidden_text__text">@Text</span>
+    
+    @if (DisableCopy == false)
+    {
+        <MudIconButton
+            Icon="@Icons.Material.Filled.ContentCopy"
+            Size="Size.Small"
+            OnClick="() => CopyToClipboard(Text)"/>
+    }
+</section>
+
+@code {
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public bool DisableCopy { get; set; }
+
+    private async Task CopyToClipboard(string code)
+    {
+        if (!string.IsNullOrEmpty(code))
+            await Js.InvokeVoidAsync("copyTextToClipboard", code);
+    }
+
+}

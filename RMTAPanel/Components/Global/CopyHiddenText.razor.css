@@ -1,10 +1,10 @@
-﻿.register_code__copy {
+.copy_hidden_text__copy {
     display: inline-flex;
     align-items: center;
     gap: 5px;
 }
 
-.register_code__id {
+.copy_hidden_text__text {
     max-width: 100px;
     overflow: hidden;
     white-space: nowrap;

@@ -1,12 +1,12 @@
 <MudDialog>
-    <TitleContent>
-        Deseja confirmar a exclusão desse código de registro?
-    </TitleContent>
-
     <DialogContent>
+        <MudText Class="mb-4">
+            Deseja confirmar a exclusão desse código de registro?
+        </MudText>
+
         <CustomActionsModal IsFetch="_isFetch">
             <MudButton OnClick="Cancel">Cancelar</MudButton>
-            <MudButton Color="Color.Error">Confirmar</MudButton>
+            <MudButton Color="Color.Error" Variant="Variant.Filled">Confirmar</MudButton>
         </CustomActionsModal>
     </DialogContent>
 </MudDialog>

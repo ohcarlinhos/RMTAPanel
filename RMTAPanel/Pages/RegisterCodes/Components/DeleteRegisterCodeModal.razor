@@ -1,3 +1,6 @@
+@inject HttpClient Http
+@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+
 <MudDialog>
     <DialogContent>
         <MudText Class="mb-4">
@@ -6,7 +9,7 @@
 
         <CustomActionsModal IsFetch="_isFetch">
             <MudButton OnClick="Cancel">Cancelar</MudButton>
-            <MudButton Color="Color.Error" Variant="Variant.Filled">Confirmar</MudButton>
+            <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="@Confirm">Confirmar</MudButton>
         </CustomActionsModal>
     </DialogContent>
 </MudDialog>
@@ -18,4 +21,26 @@
     private bool _isFetch;
 
     private void Cancel() => MudDialog!.Cancel();
+
+    private async Task Confirm()
+    {
+        try
+        {
+            _isFetch = true;
+            var response = await Http.DeleteAsync($"register-code/{RegisterCode.Id}");
+
+            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
+
+            MudDialog!.Close();
+        }
+        catch (HttpRequestException e)
+        {
+            HandleHttpErrorSnackbar.GeneralError(e);
+        }
+        finally
+        {
+            _isFetch = false;
+        }
+    }
+
 }

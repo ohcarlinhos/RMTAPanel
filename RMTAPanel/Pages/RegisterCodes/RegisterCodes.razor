@@ -1,10 +1,8 @@
 ﻿@page "/register-codes"
 
 @inject HttpClient Http 
-@inject IJSRuntime Js 
 @inject IDialogService DialogService 
 @inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
-
 
 <PageTitle>Códigos de Registro</PageTitle>
 
@@ -13,16 +11,16 @@
         <MudItem sm="12">
             <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pb-4">
                 <MudText Typo="Typo.h4" HtmlTag="h2">Códigos de Registro</MudText>
-                
+
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@Generate">Gerar Código</MudButton>
             </MudStack>
 
-            <MudTable Hover="true" Items="@_registerCodeList" Loading="@_isFetch">
+            <MudTable ServerData="ServerReload" Hover="true" @ref="_table">
                 <HeaderContent>
                     <MudTh>Chave</MudTh>
                     <MudTh>Disponível</MudTh>
                     <MudTh>Usada por</MudTh>
-                    <MudTh>Para uso de</MudTh>
+                    @* <MudTh>Para uso de</MudTh> *@
                     <MudTh></MudTh>
                 </HeaderContent>
 
@@ -36,7 +34,7 @@
 
                         @if (context.ShowCode)
                         {
-                            <CopyHiddenText DisableCopy="@(context.IsUsed)" Text="@context.Id" />
+                            <CopyHiddenText DisableCopy="@(context.IsUsed)" Text="@context.Id"/>
                         }
                         else
                         {
@@ -45,7 +43,7 @@
                     </MudTd>
                     <MudTd DataLabel="Disponível">@(!context.IsUsed ? "Sim" : "Não") </MudTd>
                     <MudTd DataLabel="Usada por">@(!string.IsNullOrEmpty(context.User?.Name) ? context.User.Name : "-")</MudTd>
-                    <MudTd DataLabel="Para uso de">@(!string.IsNullOrEmpty(context.Email) ? context.Email : "-")</MudTd>
+                    @* <MudTd DataLabel="Para uso de">@(!string.IsNullOrEmpty(context.Email) ? context.Email : "-")</MudTd> *@
                     <MudTd DataLabel="Ações">
                         <MudMenu Label="Ações" PositionAtCursor="true">
                             <MudMenuItem OnClick="() => Delete(context)">Excluir</MudMenuItem>
@@ -61,28 +59,33 @@
 </MudContainer>
 
 @code {
-    private List<RegisterCodeFormatted>? _registerCodeList = new();
-    private bool _isFetch;
+    private MudTable<RegisterCodeFormatted>? _table;
 
     public class RegisterCodeFormatted : RegisterCode
     {
         public bool ShowCode { get; set; }
-        public string? Email { get; set; }
+        // public string? Email { get; set; }
     }
 
-    protected override async Task OnInitializedAsync()
+
+    private async Task<TableData<RegisterCodeFormatted>> ServerReload(TableState state, CancellationToken token)
     {
+        var result = await GetRegisterCodes();
+        return new TableData<RegisterCodeFormatted>() { Items = result };
+    }
+
+    async Task<List<RegisterCodeFormatted>> GetRegisterCodes()
+    {
+        var registerCodeList = new List<RegisterCodeFormatted>();
+
         try
         {
-            _isFetch = true;
             var resultList = await Http.GetFromJsonAsync<List<RegisterCode>>("register-code");
-            if (resultList == null) return;
-
-            _registerCodeList = new List<RegisterCodeFormatted>();
+            if (resultList == null) return registerCodeList;
 
             foreach (var registerCode in resultList)
             {
-                _registerCodeList.Add(new RegisterCodeFormatted
+                registerCodeList.Add(new RegisterCodeFormatted
                 {
                     Id = registerCode.Id,
                     IsUsed = registerCode.IsUsed,
@@ -91,18 +94,18 @@
                     ShowCode = false,
                 });
             }
+
+            return registerCodeList;
         }
         catch (HttpRequestException e)
         {
             HandleHttpErrorSnackbar.GeneralError(e);
         }
-        finally
-        {
-            _isFetch = false;
-        }
+
+        return registerCodeList;
     }
 
-    private Task Generate()
+    private async Task Generate()
     {
         var options = new DialogOptions
         {
@@ -110,11 +113,14 @@
             BackdropClick = false,
             MaxWidth = MaxWidth.ExtraSmall
         };
-        
-        return DialogService.ShowAsync<CreateRegisterCodeModal>("Gerar código de registro", options);
+
+        var dialog = await DialogService.ShowAsync<CreateRegisterCodeModal>("Gerar código de registro", options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
-    
-    private Task Delete(RegisterCode registerCode)
+
+    private async Task Delete(RegisterCode registerCode)
     {
         var options = new DialogOptions
         {
@@ -128,7 +134,10 @@
             { "RegisterCode", registerCode }
         };
 
-        return DialogService.ShowAsync<DeleteRegisterCodeModal>("Apagar código de registro", dialogParams, options);
+        var dialog = await DialogService.ShowAsync<DeleteRegisterCodeModal>("Apagar código de registro", dialogParams, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
 
 }

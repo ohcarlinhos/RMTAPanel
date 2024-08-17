@@ -1,4 +1,4 @@
-@inject HttpClient Http 
+@inject HttpClient Http
 @inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
 
 <MudDialog>
@@ -47,8 +47,6 @@
 
             var content = await response.Content.ReadFromJsonAsync<RegisterCode>();
             if (content != null) RegisterCode = content;
-
-            await InvokeAsync(StateHasChanged);
         }
         catch (HttpRequestException e)
         {

@@ -15,12 +15,12 @@
         <MudItem sm="12">
             <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Usuários</MudText>
 
-
-            <MudTable Hover="true" Items="@_userList" Loading="@_isFetch">
+            <MudTable Hover="true" ServerData="ServerReload" @ref="_table">
                 <HeaderContent>
                     <MudTh>Id</MudTh>
                     <MudTh>Nome</MudTh>
                     <MudTh>Email</MudTh>
+                    <MudTh>Tipo</MudTh>
                     <MudTh>Ativo</MudTh>
                     <MudTh></MudTh>
                 </HeaderContent>
@@ -29,6 +29,7 @@
                     <MudTd DataLabel="Id">@context.Id</MudTd>
                     <MudTd DataLabel="Nome">@context.Name</MudTd>
                     <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="Tipo">@context.UserRoleLabel</MudTd>
                     <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim" : "Não")</MudTd>
 
                     <MudTd DataLabel="Ações">
@@ -46,7 +47,7 @@
                 </RowTemplate>
 
                 <PagerContent>
-                    <MudTablePager/>
+                    <MudTablePager PageSizeOptions="@(new[] { 10, 20, 30 })"/>
                 </PagerContent>
             </MudTable>
         </MudItem>
@@ -54,17 +55,13 @@
 </MudContainer>
 
 @code {
+    private MudTable<UserMap>? _table;
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
 
     private ClaimsPrincipal MyClaims { get; set; } = new();
 
-    private List<UserMap>? _userList = new();
-    private bool _isFetch;
-
     protected override async Task OnInitializedAsync()
     {
-        await GetUsers();
-
         if (AuthState != null)
         {
             var authState = await AuthState;
@@ -72,22 +69,29 @@
         }
     }
 
-    private async Task GetUsers()
+    private async Task<TableData<UserMap>> ServerReload(TableState state, CancellationToken token)
+    {
+        var result = await GetUsers();
+        var tableData = new TableData<UserMap>();
+        if (result == null) return tableData;
+
+        tableData.Items = result.Data;
+        tableData.TotalItems = result.TotalItems;
+        return tableData;
+    }
+
+    private async Task<Pagination<UserMap>?> GetUsers()
     {
         try
         {
-            _isFetch = true;
-            var response = await Http.GetFromJsonAsync<Pagination<UserMap>>("user");
-            if (response?.Data != null) _userList = response.Data;
+            return await Http.GetFromJsonAsync<Pagination<UserMap>>("user");
         }
         catch (HttpRequestException e)
         {
             HandleHttpErrorSnackbar.GeneralError(e);
         }
-        finally
-        {
-            _isFetch = false;
-        }
+
+        return null;
     }
 
     private Task EditUser(UserMap user)
@@ -108,7 +112,7 @@
         return DialogService.ShowAsync<EditUserModal>("Editar usuáiro", dialogParams, options);
     }
 
-    private Task EditPassword(int id)
+    private async Task EditPassword(int id)
     {
         var options = new DialogOptions
         {
@@ -123,7 +127,10 @@
             { "Id", id }
         };
 
-        return DialogService.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
+        var dialog = await DialogService.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
 
     private async Task Disable(UserMap user)
@@ -143,10 +150,7 @@
         var dialog = await DialogService.ShowAsync<DisableUserModal>("Desativar usuário", dialogParams, options);
         var result = await dialog.Result;
 
-        if (result!.Canceled == false)
-        {
-            await GetUsers();
-        }
+        if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
 
 }

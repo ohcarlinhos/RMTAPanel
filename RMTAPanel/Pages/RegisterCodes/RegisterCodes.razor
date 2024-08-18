@@ -1,4 +1,5 @@
 ﻿@page "/register-codes"
+@using System.Web
 
 @inject HttpClient Http 
 @inject IDialogService DialogService 
@@ -51,7 +52,7 @@
                     </MudTd>
                 </RowTemplate>
                 <PagerContent>
-                    <MudTablePager/>
+                    <MudTablePager PageSizeOptions="@(new[] { 10, 20, 30 })"/>
                 </PagerContent>
             </MudTable>
         </MudItem>
@@ -70,39 +71,59 @@
 
     private async Task<TableData<RegisterCodeFormatted>> ServerReload(TableState state, CancellationToken token)
     {
-        var result = await GetRegisterCodes();
-        return new TableData<RegisterCodeFormatted>() { Items = result };
+        var paginationQuery = new PaginationQuery
+        {
+            Page = state.Page,
+            PerPage = state.PageSize,
+        };
+
+        var result = await GetRegisterCodes(paginationQuery);
+
+        var tableData = new TableData<RegisterCodeFormatted>();
+        if (result == null) return tableData;
+
+        var items = new List<RegisterCodeFormatted>();
+
+        if (result.Data != null)
+        {
+            items.AddRange(result.Data
+                .Select(registerCode => new RegisterCodeFormatted
+                    {
+                        Id = registerCode.Id,
+                        IsUsed = registerCode.IsUsed,
+                        User = registerCode.User,
+                        UserId = registerCode.UserId,
+                        ShowCode = false,
+                    }
+                )
+            );
+        }
+
+        return new TableData<RegisterCodeFormatted> { Items = items, TotalItems = result.TotalItems };
     }
 
-    async Task<List<RegisterCodeFormatted>> GetRegisterCodes()
+    async Task<Pagination<RegisterCode>?> GetRegisterCodes(PaginationQuery paginationQuery)
     {
-        var registerCodeList = new List<RegisterCodeFormatted>();
+        var pagination = new Pagination<RegisterCode>();
 
         try
         {
-            var resultList = await Http.GetFromJsonAsync<List<RegisterCode>>("register-code");
-            if (resultList == null) return registerCodeList;
+            var uriBuilder = new UriBuilder(Http.BaseAddress + "register-code");
+            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
 
-            foreach (var registerCode in resultList)
-            {
-                registerCodeList.Add(new RegisterCodeFormatted
-                {
-                    Id = registerCode.Id,
-                    IsUsed = registerCode.IsUsed,
-                    User = registerCode.User,
-                    UserId = registerCode.UserId,
-                    ShowCode = false,
-                });
-            }
+            query["page"] = paginationQuery.Page.ToString();
+            query["perPage"] = paginationQuery.PerPage.ToString();
 
-            return registerCodeList;
+            uriBuilder.Query = query.ToString();
+
+            return await Http.GetFromJsonAsync<Pagination<RegisterCode>>(uriBuilder.Uri);
         }
         catch (HttpRequestException e)
         {
             HandleHttpErrorSnackbar.GeneralError(e);
         }
 
-        return registerCodeList;
+        return pagination;
     }
 
     private async Task Generate()

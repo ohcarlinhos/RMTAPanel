@@ -6,11 +6,11 @@
 
 
 <MudDialog>
-    <TitleContent>
-        Deseja confirmar a @(User.IsActive ? "desativação" : "ativação") do usuário "@User.Name"?
-    </TitleContent>
-
     <DialogContent>
+        <MudText Class="mb-4">
+            Deseja confirmar a @(User.IsActive ? "desativação" : "ativação") do usuário "@User.Name"?
+        </MudText>
+        
         <CustomActionsModal IsFetch="@_isFetch">
             <MudButton OnClick="@Cancel" Disabled="_isFetch">Cancelar</MudButton>
 

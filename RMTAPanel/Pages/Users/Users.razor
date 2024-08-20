@@ -116,7 +116,7 @@
             { "User", user }
         };
 
-        var dialog = await DialogService.ShowAsync<EditUserModal>("Editar usuáiro", dialogParams, options);
+        var dialog = await DialogService.ShowAsync<EditUserModal>("Editar usuário", dialogParams, options);
         var result = await dialog.Result;
         if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
@@ -136,7 +136,7 @@
             { "User", user }
         };
 
-        var dialog = await DialogService.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
+        var dialog = await DialogService.ShowAsync<EditPasswordModal>("Alterar senha do usuário", dialogParams, options);
         var result = await dialog.Result;
         if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
@@ -175,7 +175,7 @@
             { "User", user }
         };
 
-        var dialog = await DialogService.ShowAsync<DisableUserModal>("Desativar usuário", dialogParams, options);
+        var dialog = await DialogService.ShowAsync<DisableUserModal>($"{(user.IsActive ? "Desativar" : "Ativar")} usuário", dialogParams, options);
         var result = await dialog.Result;
         if (result is { Canceled: false }) await _table!.ReloadServerData();
     }

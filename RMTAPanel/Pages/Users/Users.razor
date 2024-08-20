@@ -7,13 +7,32 @@
 @inject HttpClient Http
 @inject IDialogService DialogService
 @inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+@inject HandleUrlQueries HandleUrlQueries
 
 <PageTitle>Usuários</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-20">
     <MudGrid>
         <MudItem sm="12">
-            <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Usuários</MudText>
+            <MudStack Row="true" Justify="Justify.SpaceAround" AlignItems="AlignItems.Start">
+                <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Usuários</MudText>
+                <MudSpacer />
+                <MudStack Style="max-width: 280px; width: 100%">
+                    
+                    <MudTextField
+                        T="string"
+                        Placeholder="Pesquisar"
+                        Adornment="Adornment.End"
+                        AdornmentIcon="@Icons.Material.Filled.Search"
+                        ValueChanged="@((s) => Search(s))"
+                        MaxLength="60"
+                        Counter="60"
+                    />
+                
+                    </MudStack>
+                
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">Criar usuário</MudButton>
+            </MudStack>
 
             <MudTable Hover="true" ServerData="ServerReload" @ref="_table">
                 <HeaderContent>
@@ -29,7 +48,7 @@
                     <MudTd DataLabel="Id">@context.Id</MudTd>
                     <MudTd DataLabel="Nome">@context.Name</MudTd>
                     <MudTd DataLabel="Email">@context.Email</MudTd>
-                    <MudTd DataLabel="Tipo">@context.UserRoleLabel</MudTd>
+                    <MudTd DataLabel="Papel">@context.UserRoleLabel</MudTd>
                     <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim" : "Não")</MudTd>
 
                     <MudTd DataLabel="Ações">
@@ -66,6 +85,7 @@
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
 
     private ClaimsPrincipal MyClaims { get; set; } = new();
+    private string _searchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -78,7 +98,14 @@
 
     private async Task<TableData<UserMap>> ServerReload(TableState state, CancellationToken token)
     {
-        var result = await GetUsers();
+        var paginationQuery = new PaginationQuery()
+        {
+            Page = state.Page,
+            PerPage = state.PageSize,
+            Search = _searchString
+        };
+
+        var result = await GetUsers(paginationQuery);
         var tableData = new TableData<UserMap>();
         if (result == null) return tableData;
 
@@ -87,11 +114,19 @@
         return tableData;
     }
 
-    private async Task<Pagination<UserMap>?> GetUsers()
+    private void Search(string search)
+    {
+        _searchString = search;
+        _table!.ReloadServerData();
+    }
+
+    private async Task<Pagination<UserMap>?> GetUsers(PaginationQuery paginationQuery)
     {
         try
         {
-            return await Http.GetFromJsonAsync<Pagination<UserMap>>("user");
+            return await Http.GetFromJsonAsync<Pagination<UserMap>>(
+                HandleUrlQueries.FromPagination("user", paginationQuery)
+            );
         }
         catch (HttpRequestException e)
         {

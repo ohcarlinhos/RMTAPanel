@@ -21,10 +21,14 @@
                     
                     <MudTextField
                         T="string"
+                        ValueChanged="@Search"
+                        Immediate="true"
                         Placeholder="Pesquisar"
-                        Adornment="Adornment.End"
+                        Adornment="Adornment.Start"
                         AdornmentIcon="@Icons.Material.Filled.Search"
-                        ValueChanged="@((s) => Search(s))"
+                        Clearable="true"
+                        ClearIcon="@Icons.Material.Filled.Close"
+                        DebounceInterval="1000"
                         MaxLength="60"
                         Counter="60"
                     />
@@ -116,7 +120,7 @@
 
     private void Search(string search)
     {
-        _searchString = search;
+        _searchString = search;   
         _table!.ReloadServerData();
     }
 

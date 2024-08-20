@@ -11,6 +11,8 @@
 
     <DialogContent>
         <EditForm Model="@_userDto" OnValidSubmit="@SubmitForm">
+            <DataAnnotationsValidator/>
+
             <MudTextField
                 @bind-Value="_userDto.Name"
                 Label="Nome"

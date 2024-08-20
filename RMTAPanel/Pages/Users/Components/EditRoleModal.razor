@@ -1,0 +1,63 @@
+@using Shared.User
+
+@inject HttpClient Http;
+@inject ISnackbar Snackbar
+@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="@_roleForm" OnValidSubmit="SubmitForm">
+            <DataAnnotationsValidator/>
+
+            <MudSelect T="string" Label="Tipo de usuário" AnchorOrigin="Origin.BottomCenter" @bind-Value="_roleForm.Role">
+                @foreach (var role in Enum.GetNames(typeof(UserRole)))
+                {
+                    <MudSelectItem T="string" Value="@role"/>
+                }
+            </MudSelect>
+
+            <MudStack Justify="Justify.FlexEnd" Row="true" Class="mt-5">
+                <MudButton OnClick="@Cancel" Disabled="_isFetch">Cancelar</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Disabled="_isFetch">Alterar</MudButton>
+            </MudStack>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public UserMap User { get; set; } = new();
+
+    private UpdateRoleDto _roleForm = new();
+    private bool _isFetch;
+
+    protected override void OnInitialized()
+    {
+        _roleForm.Role = User.UserRoleLabel;
+    }
+
+    private async Task SubmitForm()
+    {
+        try
+        {
+            _isFetch = true;
+            var response = await Http.PutAsJsonAsync($"user/role/{User.Id}", _roleForm);
+
+            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
+
+            Snackbar.Add($"Tipo de usuário atualizado com sucesso.", Severity.Success);
+            MudDialog!.Close();
+        }
+        catch (HttpRequestException e)
+        {
+            HandleHttpErrorSnackbar!.GeneralError(e);
+        }
+        finally
+        {
+            _isFetch = false;
+        }
+    }
+
+    private void Cancel() => MudDialog!.Cancel();
+
+}

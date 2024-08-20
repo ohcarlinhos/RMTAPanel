@@ -36,6 +36,7 @@
                         <MudMenu Label="Ações" PositionAtCursor="true">
                             <MudMenuItem OnClick="() => EditUser(context)">Editar</MudMenuItem>
                             <MudMenuItem OnClick="() => EditPassword(context)">Alterar senha</MudMenuItem>
+                            <MudMenuItem OnClick="() => EditRole(context)">Editar tipo</MudMenuItem>
 
                             <MudMenuItem
                                 OnClick="() => Disable(context)"
@@ -136,6 +137,26 @@
         };
 
         var dialog = await DialogService.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
+        var result = await dialog.Result;
+        if (result is { Canceled: false }) await _table!.ReloadServerData();
+    }
+
+    private async Task EditRole(UserMap user)
+    {
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            FullWidth = true,
+            CloseOnEscapeKey = false,
+            BackdropClick = false
+        };
+
+        var dialogParams = new DialogParameters<EditRoleModal>
+        {
+            { "User", user }
+        };
+
+        var dialog = await DialogService.ShowAsync<EditRoleModal>("Alterar tipo de usuário", dialogParams, options);
         var result = await dialog.Result;
         if (result is { Canceled: false }) await _table!.ReloadServerData();
     }

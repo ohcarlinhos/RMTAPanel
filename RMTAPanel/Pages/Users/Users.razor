@@ -34,14 +34,14 @@
 
                     <MudTd DataLabel="Ações">
                         <MudMenu Label="Ações" PositionAtCursor="true">
-                            <MudMenuItem OnClick="() => EditUser(context)">Editar</MudMenuItem>
                             <MudMenuItem OnClick="() => EditPassword(context)">Alterar senha</MudMenuItem>
-                            <MudMenuItem OnClick="() => EditRole(context)">Editar tipo</MudMenuItem>
+                            <MudMenuItem OnClick="() => EditRole(context)">Alterar papel</MudMenuItem>
 
+                            <MudMenuItem OnClick="() => EditUser(context)">Editar usuário</MudMenuItem>
                             <MudMenuItem
                                 OnClick="() => Disable(context)"
                                 Disabled="@(context.Id == UserClaims.Id(MyClaims))">
-                                @(context.IsActive ? "Desativar" : "Ativar")
+                                @(context.IsActive ? "Desativar" : "Ativar") usuário
                             </MudMenuItem>
                         </MudMenu>
                     </MudTd>
@@ -136,7 +136,7 @@
             { "User", user }
         };
 
-        var dialog = await DialogService.ShowAsync<EditPasswordModal>("Alterar senha do usuário", dialogParams, options);
+        var dialog = await DialogService.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
         var result = await dialog.Result;
         if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
@@ -156,7 +156,7 @@
             { "User", user }
         };
 
-        var dialog = await DialogService.ShowAsync<EditRoleModal>("Alterar tipo de usuário", dialogParams, options);
+        var dialog = await DialogService.ShowAsync<EditRoleModal>("Alterar papel", dialogParams, options);
         var result = await dialog.Result;
         if (result is { Canceled: false }) await _table!.ReloadServerData();
     }

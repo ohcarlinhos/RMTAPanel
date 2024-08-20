@@ -100,7 +100,7 @@
         return null;
     }
 
-    private Task EditUser(UserMap user)
+    private async Task EditUser(UserMap user)
     {
         var options = new DialogOptions
         {
@@ -115,7 +115,9 @@
             { "User", user }
         };
 
-        return DialogService.ShowAsync<EditUserModal>("Editar usuáiro", dialogParams, options);
+        var dialog = await DialogService.ShowAsync<EditUserModal>("Editar usuáiro", dialogParams, options);
+        var result = await dialog.Result;
+        if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
 
     private async Task EditPassword(int id)
@@ -135,7 +137,6 @@
 
         var dialog = await DialogService.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
         var result = await dialog.Result;
-
         if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
 
@@ -155,7 +156,6 @@
 
         var dialog = await DialogService.ShowAsync<DisableUserModal>("Desativar usuário", dialogParams, options);
         var result = await dialog.Result;
-
         if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
 

@@ -1,5 +1,9 @@
 @using Shared.User
 
+@inject HttpClient Http;
+@inject ISnackbar Snackbar
+@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+
 <MudDialog>
     <TitleContent>
         <TitleModal Label="Editar usuário"/>
@@ -11,17 +15,19 @@
                 @bind-Value="_userDto.Name"
                 Label="Nome"
                 InputType="InputType.Text"
+                Disabled="_isFetch"
                 For="@(() => _userDto.Name)"/>
 
             <MudTextField
                 @bind-Value="_userDto.Email"
                 Label="Email"
                 InputType="InputType.Email"
+                Disabled="_isFetch"
                 For="@(() => _userDto.Email)"/>
 
             <MudStack Justify="Justify.FlexEnd" Row="true" Class="mt-5">
-                <MudButton OnClick="@Cancel">Cancelar</MudButton>
-                <MudButton ButtonType="ButtonType.Submit">Atualizar</MudButton>
+                <MudButton OnClick="@Cancel" Disabled="_isFetch">Cancelar</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Disabled="_isFetch">Atualizar</MudButton>
             </MudStack>
         </EditForm>
     </DialogContent>
@@ -29,9 +35,10 @@
 
 @code {
     [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
-    [Parameter] public UserMap User { get; set; } = new ();
+    [Parameter] public UserMap User { get; set; } = new();
 
     private UpdateUserDto _userDto = new();
+    private bool _isFetch;
 
     protected override void OnParametersSet()
     {
@@ -42,9 +49,25 @@
         };
     }
 
-    private void SubmitForm()
+    private async Task SubmitForm()
     {
-        Console.WriteLine("#submit");
+        try
+        {
+            _isFetch = true;
+            var response = await Http.PutAsJsonAsync($"user/{User.Id}", _userDto);
+            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
+
+            Snackbar.Add($"Usuário editado com sucesso.", Severity.Success);
+            MudDialog!.Close();
+        }
+        catch (HttpRequestException e)
+        {
+            HandleHttpErrorSnackbar!.GeneralError(e);
+        }
+        finally
+        {
+            _isFetch = false;
+        }
     }
 
     private void Cancel() => MudDialog!.Cancel();

@@ -35,7 +35,7 @@
                     <MudTd DataLabel="Ações">
                         <MudMenu Label="Ações" PositionAtCursor="true">
                             <MudMenuItem OnClick="() => EditUser(context)">Editar</MudMenuItem>
-                            <MudMenuItem OnClick="() => EditPassword(context.Id)">Alterar senha</MudMenuItem>
+                            <MudMenuItem OnClick="() => EditPassword(context)">Alterar senha</MudMenuItem>
 
                             <MudMenuItem
                                 OnClick="() => Disable(context)"
@@ -120,7 +120,7 @@
         if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
 
-    private async Task EditPassword(int id)
+    private async Task EditPassword(UserMap user)
     {
         var options = new DialogOptions
         {
@@ -132,7 +132,7 @@
 
         var dialogParams = new DialogParameters<EditPasswordModal>
         {
-            { "Id", id }
+            { "User", user }
         };
 
         var dialog = await DialogService.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);

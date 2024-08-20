@@ -4,6 +4,7 @@
 @inject HttpClient Http 
 @inject IDialogService DialogService 
 @inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+@inject HandleUrlQueries HandleUrlQueries
 
 <PageTitle>Códigos de Registro</PageTitle>
 
@@ -117,15 +118,9 @@
 
         try
         {
-            var uriBuilder = new UriBuilder(Http.BaseAddress + "register-code");
-            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
-
-            query["page"] = paginationQuery.Page.ToString();
-            query["perPage"] = paginationQuery.PerPage.ToString();
-
-            uriBuilder.Query = query.ToString();
-
-            return await Http.GetFromJsonAsync<Pagination<RegisterCode>>(uriBuilder.Uri);
+            return await Http.GetFromJsonAsync<Pagination<RegisterCode>>(
+                HandleUrlQueries.FromPagination("register-code", paginationQuery)
+            );
         }
         catch (HttpRequestException e)
         {

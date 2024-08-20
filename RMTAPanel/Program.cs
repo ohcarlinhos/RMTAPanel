@@ -29,6 +29,7 @@ builder.Services.AddScoped<AuthenticationStateProvider>((provider) =>
 builder.Services.AddScoped<AuthenticateService>();
 
 builder.Services.AddScoped<HandleHttpErrorSnackbar>();
+builder.Services.AddScoped<HandleUrlQueries>();
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();

@@ -52,6 +52,12 @@
                     </MudTd>
                 </RowTemplate>
                 <PagerContent>
+                    @if (_table?.GetFilteredItemsCount() == 0 && !_table.Loading)
+                    {
+                        <MudStack Class="ma-10" AlignItems="AlignItems.Center">
+                            <MudText>Nenhum código de registro encontrado.</MudText>
+                        </MudStack>
+                    }
                     <MudTablePager PageSizeOptions="@(new[] { 10, 20, 30 })"/>
                 </PagerContent>
             </MudTable>
@@ -104,7 +110,10 @@
 
     async Task<Pagination<RegisterCode>?> GetRegisterCodes(PaginationQuery paginationQuery)
     {
-        var pagination = new Pagination<RegisterCode>();
+        var pagination = new Pagination<RegisterCode>
+        {
+            Data = new List<RegisterCode>()
+        };
 
         try
         {

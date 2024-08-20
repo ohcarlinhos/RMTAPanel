@@ -47,6 +47,12 @@
                 </RowTemplate>
 
                 <PagerContent>
+                    @if (_table?.GetFilteredItemsCount() == 0 && !_table.Loading)
+                    {
+                        <MudStack Class="ma-10" AlignItems="AlignItems.Center">
+                            <MudText>Nenhum usuário encontrado.</MudText>
+                        </MudStack>
+                    }
                     <MudTablePager PageSizeOptions="@(new[] { 10, 20, 30 })"/>
                 </PagerContent>
             </MudTable>

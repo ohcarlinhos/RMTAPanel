@@ -82,7 +82,11 @@
                             <MudText>Nenhum usuário encontrado.</MudText>
                         </MudStack>
                     }
-                    <MudTablePager PageSizeOptions="@(new[] { 10, 20, 30 })"/>
+
+                    <MudTablePager
+                        PageSizeOptions="@(new[] { 10, 20, 30 })"
+                        RowsPerPageString="Usuários por página:"
+                        InfoFormat="{first_item}-{last_item} de {all_items}"/>
                 </PagerContent>
             </MudTable>
         </MudItem>

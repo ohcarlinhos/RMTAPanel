@@ -45,7 +45,6 @@
                     </MudTd>
                     <MudTd DataLabel="Disponível">@(!context.IsUsed ? "Sim" : "Não") </MudTd>
                     <MudTd DataLabel="Usada por">@(!string.IsNullOrEmpty(context.User?.Name) ? context.User.Name : "-")</MudTd>
-                    @* <MudTd DataLabel="Para uso de">@(!string.IsNullOrEmpty(context.Email) ? context.Email : "-")</MudTd> *@
                     <MudTd DataLabel="Ações">
                         <MudMenu Label="Ações" PositionAtCursor="true">
                             <MudMenuItem OnClick="() => Delete(context)">Excluir</MudMenuItem>
@@ -59,7 +58,11 @@
                             <MudText>Nenhum código de registro encontrado.</MudText>
                         </MudStack>
                     }
-                    <MudTablePager PageSizeOptions="@(new[] { 10, 20, 30 })"/>
+
+                    <MudTablePager
+                        PageSizeOptions="@(new[] { 10, 20, 30 })"
+                        RowsPerPageString="Códigos por página:"
+                        InfoFormat="{first_item}-{last_item} de {all_items}"/>
                 </PagerContent>
             </MudTable>
         </MudItem>
@@ -72,9 +75,7 @@
     public class RegisterCodeFormatted : RegisterCode
     {
         public bool ShowCode { get; set; }
-        // public string? Email { get; set; }
     }
-
 
     private async Task<TableData<RegisterCodeFormatted>> ServerReload(TableState state, CancellationToken token)
     {

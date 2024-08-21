@@ -5,6 +5,9 @@
 @inject HttpClient Http
 @inject ISnackbar Snackbar
 @inject ILocalStorageService LocalStorage
+@inject IWebAssemblyHostEnvironment Env
+@inject WebAssemblyHostConfiguration Config
+
 @inject CustomAuthStateProvider AuthProvider
 @inject AuthenticateService AuthService
 @inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
@@ -42,7 +45,6 @@
                     else
                     {
                         @("Acessar")
-                        ;
                     }
                 </MudButton>
             </MudStack>
@@ -51,15 +53,26 @@
 </MudStack>
 
 @code {
-    private LoginDto _loginDto = new() { Email = "carlos@teste.com", Password = "SAklsaj)238al!" };
+    private LoginDto _loginDto = new();
     private bool _isFetch;
+
+    protected override void OnInitialized()
+    {
+        if (Env.IsDevelopment())
+        {
+            if (string.IsNullOrEmpty(Config["MockEmailLogin"]) == false)
+                _loginDto.Email = Config["MockEmailLogin"]!;
+            if (string.IsNullOrEmpty(Config["MockEmailLogin"]) == false)
+                _loginDto.Password = Config["MockPasswordLogin"]!;
+        }
+    }
 
     async Task SubmitForm()
     {
         try
         {
             _isFetch = true;
-            var response = await Http.PostAsJsonAsync("auth/login", _loginDto);
+            var response = await Http.PostAsJsonAsync("auth/panel", _loginDto);
 
             if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
 

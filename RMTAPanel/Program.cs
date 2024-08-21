@@ -20,6 +20,9 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
 
+builder.Services.AddSingleton(builder.HostEnvironment);
+builder.Services.AddSingleton(builder.Configuration);
+
 builder.Services.AddScoped<CustomAuthStateProvider>();
 
 builder.Services.AddScoped<AuthenticationStateProvider>((provider) =>

@@ -16,9 +16,10 @@
         <MudItem sm="12">
             <MudStack Row="true" Justify="Justify.SpaceAround" AlignItems="AlignItems.Start">
                 <MudText Typo="Typo.h4" HtmlTag="h2" Class="pb-4">Usuários</MudText>
-                <MudSpacer />
+
+                <MudSpacer/>
+
                 <MudStack Style="max-width: 280px; width: 100%">
-                    
                     <MudTextField
                         T="string"
                         ValueChanged="@Search"
@@ -30,12 +31,16 @@
                         ClearIcon="@Icons.Material.Filled.Close"
                         DebounceInterval="1000"
                         MaxLength="60"
-                        Counter="60"
-                    />
-                
-                    </MudStack>
-                
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">Criar usuário</MudButton>
+                        Counter="60"/>
+                </MudStack>
+
+                <MudButton
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    Size="Size.Medium"
+                    OnClick="@CreateUser">
+                    Criar usuário
+                </MudButton>
             </MudStack>
 
             <MudTable Hover="true" ServerData="ServerReload" @ref="_table">
@@ -91,6 +96,15 @@
     private ClaimsPrincipal MyClaims { get; set; } = new();
     private string _searchString = "";
 
+    private readonly DialogOptions _modalOptions = new()
+    {
+        CloseButton = true,
+        MaxWidth = MaxWidth.ExtraSmall,
+        FullWidth = true,
+        CloseOnEscapeKey = false,
+        BackdropClick = false
+    };
+
     protected override async Task OnInitializedAsync()
     {
         if (AuthState != null)
@@ -120,7 +134,7 @@
 
     private void Search(string search)
     {
-        _searchString = search;   
+        _searchString = search;
         _table!.ReloadServerData();
     }
 
@@ -140,83 +154,49 @@
         return null;
     }
 
-    private async Task EditUser(UserMap user)
+    private async Task HandleCloseModal(IDialogReference dialog)
     {
-        var options = new DialogOptions
-        {
-            CloseButton = true,
-            FullWidth = true,
-            CloseOnEscapeKey = false,
-            BackdropClick = false
-        };
-
-        var dialogParams = new DialogParameters
-        {
-            { "User", user }
-        };
-
-        var dialog = await DialogService.ShowAsync<EditUserModal>("Editar usuário", dialogParams, options);
         var result = await dialog.Result;
         if (result is { Canceled: false }) await _table!.ReloadServerData();
+    }
+
+    private async Task CreateUser()
+    {
+        var dialog = await DialogService.ShowAsync<CreateUserModal>("Criar usuário", _modalOptions);
+        await HandleCloseModal(dialog);
+    }
+
+    private async Task EditUser(UserMap user)
+    {
+        var dialogParams = new DialogParameters { { "User", user } };
+        var dialog = await DialogService.ShowAsync<EditUserModal>("Editar usuário", dialogParams, _modalOptions);
+        await HandleCloseModal(dialog);
     }
 
     private async Task EditPassword(UserMap user)
     {
-        var options = new DialogOptions
-        {
-            CloseButton = true,
-            FullWidth = true,
-            CloseOnEscapeKey = false,
-            BackdropClick = false
-        };
+        var dialogParams = new DialogParameters { { "User", user } };
 
-        var dialogParams = new DialogParameters<EditPasswordModal>
-        {
-            { "User", user }
-        };
-
-        var dialog = await DialogService.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, options);
-        var result = await dialog.Result;
-        if (result is { Canceled: false }) await _table!.ReloadServerData();
+        var dialog = await DialogService.ShowAsync<EditPasswordModal>("Alterar senha", dialogParams, _modalOptions);
+        await HandleCloseModal(dialog);
     }
 
     private async Task EditRole(UserMap user)
     {
-        var options = new DialogOptions
-        {
-            CloseButton = true,
-            FullWidth = true,
-            CloseOnEscapeKey = false,
-            BackdropClick = false
-        };
-
-        var dialogParams = new DialogParameters<EditRoleModal>
-        {
-            { "User", user }
-        };
-
-        var dialog = await DialogService.ShowAsync<EditRoleModal>("Alterar papel", dialogParams, options);
-        var result = await dialog.Result;
-        if (result is { Canceled: false }) await _table!.ReloadServerData();
+        var dialogParams = new DialogParameters { { "User", user } };
+        var dialog = await DialogService.ShowAsync<EditRoleModal>("Alterar papel", dialogParams, _modalOptions);
+        await HandleCloseModal(dialog);
     }
 
     private async Task Disable(UserMap user)
     {
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = false,
-            BackdropClick = false,
-            MaxWidth = MaxWidth.ExtraSmall
-        };
-
-        var dialogParams = new DialogParameters<DisableUserModal>
-        {
-            { "User", user }
-        };
-
-        var dialog = await DialogService.ShowAsync<DisableUserModal>($"{(user.IsActive ? "Desativar" : "Ativar")} usuário", dialogParams, options);
-        var result = await dialog.Result;
-        if (result is { Canceled: false }) await _table!.ReloadServerData();
+        var dialogParams = new DialogParameters { { "User", user } };
+        var dialog = await DialogService.ShowAsync<DisableUserModal>(
+            $"{(user.IsActive ? "Desativar" : "Ativar")} usuário",
+            dialogParams,
+            _modalOptions
+        );
+        await HandleCloseModal(dialog);
     }
 
 }

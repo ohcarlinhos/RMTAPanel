@@ -1,0 +1,77 @@
+@using Shared.User
+
+@inject HttpClient Http;
+@inject ISnackbar Snackbar
+@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+
+<MudDialog >
+    <DialogContent>
+        <EditForm Model="@_userDto" OnValidSubmit="@SubmitForm" >
+            <DataAnnotationsValidator/>
+
+            <MudTextField
+                @bind-Value="_userDto.Name"
+                Label="Nome"
+                InputType="InputType.Text"
+                Disabled="_isFetch"
+                For="@(() => _userDto.Name)"/>
+
+            <MudTextField
+                @bind-Value="_userDto.Email"
+                Label="Email"
+                InputType="InputType.Email"
+                Disabled="_isFetch"
+                For="@(() => _userDto.Email)"/>
+
+            <MudTextField
+                @bind-Value="_userDto.RegisterCode"
+                Label="Código de registro"
+                InputType="InputType.Text"
+                Disabled="_isFetch"
+                For="@(() => _userDto.RegisterCode)"/>
+
+            <MudTextField
+                @bind-Value="_userDto.Password"
+                Label="Senha"
+                InputType="InputType.Password"
+                Disabled="_isFetch"
+                For="@(() => _userDto.Password)"/>
+
+            <MudStack Justify="Justify.FlexEnd" Row="true" Class="mt-5">
+                <MudButton OnClick="@Cancel" Disabled="_isFetch">Cancelar</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Disabled="_isFetch">Criar</MudButton>
+            </MudStack>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public UserMap User { get; set; } = new();
+
+    private CreateUserDto _userDto = new();
+    private bool _isFetch;
+
+    private async Task SubmitForm()
+    {
+        try
+        {
+            _isFetch = true;
+            var response = await Http.PostAsJsonAsync($"user", _userDto);
+            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
+
+            Snackbar.Add($"Usuário criado com sucesso.", Severity.Success);
+            MudDialog!.Close();
+        }
+        catch (HttpRequestException e)
+        {
+            HandleHttpErrorSnackbar!.GeneralError(e);
+        }
+        finally
+        {
+            _isFetch = false;
+        }
+    }
+
+    private void Cancel() => MudDialog!.Cancel();
+}

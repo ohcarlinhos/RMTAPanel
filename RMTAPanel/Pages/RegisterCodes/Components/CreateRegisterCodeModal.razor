@@ -1,5 +1,5 @@
 @inject HttpClient Http
-@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+@inject HttpErrorSnackbarHandle HttpErrorSnackbarHandle
 
 <MudDialog>
     <DialogContent>
@@ -43,14 +43,14 @@
             _isFetch = true;
             var response = await Http.PostAsJsonAsync("register-code", new { Email = "" });
 
-            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
+            if (await HttpErrorSnackbarHandle.IsNotOk(response)) return;
 
             var content = await response.Content.ReadFromJsonAsync<RegisterCodeEntity>();
             if (content != null) RegisterCode = content;
         }
         catch (HttpRequestException e)
         {
-            HandleHttpErrorSnackbar.GeneralError(e);
+            HttpErrorSnackbarHandle.GeneralError(e);
         }
         finally
         {

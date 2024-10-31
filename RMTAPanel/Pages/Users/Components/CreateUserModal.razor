@@ -2,7 +2,7 @@
 
 @inject HttpClient Http;
 @inject ISnackbar Snackbar
-@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+@inject HttpErrorSnackbarHandle HttpErrorSnackbarHandle
 
 <MudDialog >
     <DialogContent>
@@ -58,14 +58,14 @@
         {
             _isFetch = true;
             var response = await Http.PostAsJsonAsync($"user", _userDto);
-            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
+            if (await HttpErrorSnackbarHandle.IsNotOk(response)) return;
 
             Snackbar.Add($"Usuário criado com sucesso.", Severity.Success);
             MudDialog!.Close();
         }
         catch (HttpRequestException e)
         {
-            HandleHttpErrorSnackbar!.GeneralError(e);
+            HttpErrorSnackbarHandle!.GeneralError(e);
         }
         finally
         {

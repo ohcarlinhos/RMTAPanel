@@ -7,8 +7,8 @@
 
 @inject HttpClient Http
 @inject IDialogService DialogService
-@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
-@inject HandleUrlQueries HandleUrlQueries
+@inject HttpErrorSnackbarHandle HttpErrorSnackbarHandle
+@inject UrlQueriesHandle UrlQueriesHandle
 
 <PageTitle>Usuários</PageTitle>
 
@@ -148,12 +148,12 @@
         try
         {
             return await Http.GetFromJsonAsync<Pagination<UserMap>>(
-                HandleUrlQueries.FromPagination("user", paginationQuery)
+                UrlQueriesHandle.FromPagination("user", paginationQuery)
             );
         }
         catch (HttpRequestException e)
         {
-            HandleHttpErrorSnackbar.GeneralError(e);
+            HttpErrorSnackbarHandle.GeneralError(e);
         }
 
         return null;

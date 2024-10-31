@@ -4,8 +4,8 @@
 
 @inject HttpClient Http 
 @inject IDialogService DialogService 
-@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
-@inject HandleUrlQueries HandleUrlQueries
+@inject HttpErrorSnackbarHandle HttpErrorSnackbarHandle
+@inject UrlQueriesHandle UrlQueriesHandle
 
 <PageTitle>Códigos de Registro</PageTitle>
 
@@ -122,12 +122,12 @@
         try
         {
             return await Http.GetFromJsonAsync<Pagination<RegisterCodeEntity>>(
-                HandleUrlQueries.FromPagination("register-code", paginationQuery)
+                UrlQueriesHandle.FromPagination("register-code", paginationQuery)
             );
         }
         catch (HttpRequestException e)
         {
-            HandleHttpErrorSnackbar.GeneralError(e);
+            HttpErrorSnackbarHandle.GeneralError(e);
         }
 
         return pagination;

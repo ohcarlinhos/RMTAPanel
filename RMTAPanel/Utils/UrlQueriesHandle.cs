@@ -4,7 +4,7 @@ using Shared.General.Pagination;
 
 namespace RMTAPanel.Utils;
 
-public class HandleUrlQueries(HttpClient httpClient)
+public class UrlQueriesHandle(HttpClient httpClient)
 {
     public Uri FromPagination(string path, PaginationQuery paginationQuery)
     {

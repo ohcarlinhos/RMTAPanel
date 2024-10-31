@@ -1,5 +1,5 @@
 @inject HttpClient Http
-@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+@inject HttpErrorSnackbarHandle HttpErrorSnackbarHandle
 
 <MudDialog>
     <DialogContent>
@@ -29,13 +29,13 @@
             _isFetch = true;
             var response = await Http.DeleteAsync($"register-code/{RegisterCode.Id}");
 
-            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
+            if (await HttpErrorSnackbarHandle.IsNotOk(response)) return;
 
             MudDialog!.Close();
         }
         catch (HttpRequestException e)
         {
-            HandleHttpErrorSnackbar.GeneralError(e);
+            HttpErrorSnackbarHandle.GeneralError(e);
         }
         finally
         {

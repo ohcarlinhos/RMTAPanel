@@ -10,7 +10,7 @@
 
 @inject CustomAuthStateProvider AuthProvider
 @inject AuthenticateService AuthService
-@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+@inject HttpErrorSnackbarHandle HttpErrorSnackbarHandle
 
 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
     <MudPaper Class="pa-4" Width="100%">
@@ -74,14 +74,14 @@
             _isFetch = true;
             var response = await Http.PostAsJsonAsync("auth/panel", _loginDto);
 
-            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
+            if (await HttpErrorSnackbarHandle.IsNotOk(response)) return;
 
             var content = await response.Content.ReadFromJsonAsync<JwtData>();
             if (content != null) await AuthService.SetSate(content.Token);
         }
         catch (HttpRequestException e)
         {
-            HandleHttpErrorSnackbar.GeneralError(e);
+            HttpErrorSnackbarHandle.GeneralError(e);
         }
         finally
         {

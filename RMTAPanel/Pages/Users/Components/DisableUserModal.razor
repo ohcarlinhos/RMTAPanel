@@ -2,7 +2,7 @@
 
 @inject HttpClient Http
 @inject ISnackbar Snackbar
-@inject HandleHttpErrorSnackbar HandleHttpErrorSnackbar
+@inject HttpErrorSnackbarHandle HttpErrorSnackbarHandle
 
 
 <MudDialog>
@@ -39,14 +39,14 @@
             var term = isActive ? "ativado" : "desativado";
 
             var response = await Http.PostAsJsonAsync($"user/disable/{User.Id}", new { IsActive = isActive });
-            if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
+            if (await HttpErrorSnackbarHandle.IsNotOk(response)) return;
 
             Snackbar.Add($"Usuário {term} com sucesso.", Severity.Success);
             MudDialog!.Close();
         }
         catch (HttpRequestException e)
         {
-            HandleHttpErrorSnackbar!.GeneralError(e);
+            HttpErrorSnackbarHandle!.GeneralError(e);
         }
         finally
         {

@@ -6,7 +6,7 @@ using Shared.General;
 
 namespace RMTAPanel.Utils;
 
-public class HandleHttpErrorSnackbar(ISnackbar snackbar)
+public class HttpErrorSnackbarHandle(ISnackbar snackbar)
 {
     public async Task<bool> IsNotOk(HttpResponseMessage httpResponseMessage)
     {

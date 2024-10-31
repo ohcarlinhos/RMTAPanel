@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RMTAPanel", "RMTAPanel\RMTAPanel.csproj", "{14CB71D1-F2B8-4EF2-8C76-1014B3AFD318}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App", "App\App.csproj", "{14CB71D1-F2B8-4EF2-8C76-1014B3AFD318}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -2,6 +2,7 @@
 
 @using Shared.User
 @using System.Security.Claims
+@using Shared.General.Pagination
 @using Shared.General.Util
 
 @inject HttpClient Http
@@ -120,7 +121,7 @@
 
     private async Task<TableData<UserMap>> ServerReload(TableState state, CancellationToken token)
     {
-        var paginationQuery = new PaginationQuery()
+        var paginationQuery = new PaginationQuery
         {
             Page = state.Page,
             PerPage = state.PageSize,

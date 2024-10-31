@@ -32,7 +32,7 @@
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     private bool _isFetch;
-    private RegisterCode? RegisterCode { get; set; }
+    private RegisterCodeEntity? RegisterCode { get; set; }
 
     private void Cancel() => MudDialog!.Cancel();
 
@@ -45,7 +45,7 @@
 
             if (await HandleHttpErrorSnackbar.IsNotOk(response)) return;
 
-            var content = await response.Content.ReadFromJsonAsync<RegisterCode>();
+            var content = await response.Content.ReadFromJsonAsync<RegisterCodeEntity>();
             if (content != null) RegisterCode = content;
         }
         catch (HttpRequestException e)

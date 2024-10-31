@@ -1,5 +1,6 @@
 ﻿@page "/register-codes"
 @using System.Web
+@using Shared.General.Pagination
 
 @inject HttpClient Http 
 @inject IDialogService DialogService 
@@ -51,6 +52,7 @@
                         </MudMenu>
                     </MudTd>
                 </RowTemplate>
+                
                 <PagerContent>
                     @if (_table?.GetFilteredItemsCount() == 0 && !_table.Loading)
                     {
@@ -72,7 +74,7 @@
 @code {
     private MudTable<RegisterCodeFormatted>? _table;
 
-    public class RegisterCodeFormatted : RegisterCode
+    public class RegisterCodeFormatted : RegisterCodeEntity
     {
         public bool ShowCode { get; set; }
     }
@@ -110,16 +112,16 @@
         return new TableData<RegisterCodeFormatted> { Items = items, TotalItems = result.TotalItems };
     }
 
-    async Task<Pagination<RegisterCode>?> GetRegisterCodes(PaginationQuery paginationQuery)
+    async Task<Pagination<RegisterCodeEntity>?> GetRegisterCodes(PaginationQuery paginationQuery)
     {
-        var pagination = new Pagination<RegisterCode>
+        var pagination = new Pagination<RegisterCodeEntity>
         {
-            Data = new List<RegisterCode>()
+            Data = new List<RegisterCodeEntity>()
         };
 
         try
         {
-            return await Http.GetFromJsonAsync<Pagination<RegisterCode>>(
+            return await Http.GetFromJsonAsync<Pagination<RegisterCodeEntity>>(
                 HandleUrlQueries.FromPagination("register-code", paginationQuery)
             );
         }
@@ -146,7 +148,7 @@
         if (result is { Canceled: false }) await _table!.ReloadServerData();
     }
 
-    private async Task Delete(RegisterCode registerCode)
+    private async Task Delete(RegisterCodeEntity registerCode)
     {
         var options = new DialogOptions
         {

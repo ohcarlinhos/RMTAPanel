@@ -4,7 +4,7 @@ using System.Text.Json;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 
-namespace RMTAPanel.Providers;
+namespace App.Providers;
 
 public class CustomAuthStateProvider(ILocalStorageService localStorage, HttpClient httpClient)
     : AuthenticationStateProvider

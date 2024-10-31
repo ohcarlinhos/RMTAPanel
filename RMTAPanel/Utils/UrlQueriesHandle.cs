@@ -2,7 +2,7 @@ using System.Web;
 using Shared.General;
 using Shared.General.Pagination;
 
-namespace RMTAPanel.Utils;
+namespace App.Utils;
 
 public class UrlQueriesHandle(HttpClient httpClient)
 {

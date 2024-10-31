@@ -1,7 +1,7 @@
+using App.Providers;
 using Blazored.LocalStorage;
-using RMTAPanel.Providers;
 
-namespace RMTAPanel.Services;
+namespace App.Services;
 
 public class AuthenticateService(ILocalStorageService LocalStorage, CustomAuthStateProvider AuthProvider)
 {

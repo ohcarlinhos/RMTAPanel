@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using Blazored.LocalStorage;
-using RMTAPanel;
-using RMTAPanel.Providers;
-using RMTAPanel.Services;
-using RMTAPanel.Utils;
+using App;
+using App.Providers;
+using App.Services;
+using App.Utils;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<AppBase>("#app");

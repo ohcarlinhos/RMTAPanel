@@ -1,10 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
+using App.Errors;
 using MudBlazor;
-using RMTAPanel.Errors;
 using Shared.General;
 
-namespace RMTAPanel.Utils;
+namespace App.Utils;
 
 public class HttpErrorSnackbarHandle(ISnackbar snackbar)
 {

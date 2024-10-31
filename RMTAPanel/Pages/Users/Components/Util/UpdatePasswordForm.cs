@@ -1,7 +1,7 @@
 using Shared.User;
 using System.ComponentModel.DataAnnotations;
 
-namespace RMTAPanel.Pages.Users.Components.Util;
+namespace App.Pages.Users.Components.Util;
 
 public class UpdatePasswordForm : UpdatePasswordDto
 {

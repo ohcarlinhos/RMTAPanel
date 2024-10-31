@@ -1,4 +1,4 @@
-namespace RMTAPanel.Errors;
+namespace App.Errors;
 
 public static class ApiErrors
 {

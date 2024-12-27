@@ -71,7 +71,7 @@
         try
         {
             _isFetch = true;
-            var response = await Http.PostAsJsonAsync("auth/panel", _loginDto);
+            var response = await Http.PostAsJsonAsync("auth/login/panel", _loginDto);
 
             if (await HttpErrorSnackbarHandle.IsNotOk(response)) return;
 

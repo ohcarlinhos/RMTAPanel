@@ -6,7 +6,7 @@
 
 <MudDialog >
     <DialogContent>
-        <EditForm Model="@_userDto" OnValidSubmit="@SubmitForm" >
+        <EditForm Model="@_userDto" OnValidSubmit="@SubmitForm">
             <DataAnnotationsValidator/>
 
             <MudTextField
@@ -22,13 +22,6 @@
                 InputType="InputType.Email"
                 Disabled="_isFetch"
                 For="@(() => _userDto.Email)"/>
-
-            <MudTextField
-                @bind-Value="_userDto.RegisterCode"
-                Label="Código de registro"
-                InputType="InputType.Text"
-                Disabled="_isFetch"
-                For="@(() => _userDto.RegisterCode)"/>
 
             <MudTextField
                 @bind-Value="_userDto.Password"

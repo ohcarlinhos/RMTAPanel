@@ -52,6 +52,7 @@
                     <MudTh>Papel</MudTh>
                     <MudTh>Ativo</MudTh>
                     <MudTh>Verificado</MudTh>
+                    <MudTh>Data de Criação</MudTh>
                     <MudTh></MudTh>
                 </HeaderContent>
 
@@ -62,6 +63,7 @@
                     <MudTd DataLabel="Papel">@context.UserRoleLabel</MudTd>
                     <MudTd DataLabel="Ativo">@(context.IsActive ? "Sim" : "Não")</MudTd>
                     <MudTd DataLabel="Verificado">@(context.IsVerified ? "Sim" : "Não")</MudTd>
+                    <MudTd DataLabel="Data de Criação">@context.CreatedAt</MudTd>
 
                     <MudTd DataLabel="Ações">
                         <MudMenu Label="Ações" PositionAtCursor="true">
@@ -127,7 +129,8 @@
         {
             Page = state.Page + 1,
             PerPage = state.PageSize,
-            Search = _searchString
+            Search = _searchString,
+            Sort = "desc"
         };
 
         var result = await GetUsers(paginationQuery);

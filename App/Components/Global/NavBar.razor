@@ -6,12 +6,14 @@
 </MudText>
 
 <MudNavMenu>
-    <MudNavLink Href="/login" Match="NavLinkMatch.Prefix">Autenticação</MudNavLink>
-
     <AuthorizeView>
         <Authorized>
             <MudNavLink Href="/users" Match="NavLinkMatch.Prefix">Usuários</MudNavLink>
-            @* <MudNavLink Href="/register-codes" Match="NavLinkMatch.Prefix">Códigos de Registro</MudNavLink> *@
         </Authorized>
+        <NotAuthorized>
+            <MudText Class="pa-5">
+                Nada por aqui...
+            </MudText>
+        </NotAuthorized>
     </AuthorizeView>
 </MudNavMenu>

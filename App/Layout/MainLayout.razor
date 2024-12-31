@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject ILocalStorageService LocalStorage
+@inject CustomAuthStateProvider AuthProvider
+@inject NavigationManager Navigation
 
 <MudThemeProvider/>
 <MudPopoverProvider/>
@@ -10,7 +12,18 @@
 <MudLayout>
     <MudAppBar Color="Color.Dark">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" OnClick="DrawerToggle" Color="Color.Inherit"/>
-        <MudText Typo="Typo.h5" HtmlTag="h1" Class="pa-5">Painel - RMTA!</MudText>
+        <MudSpacer/>
+        <MudStack>
+            <AuthorizeView>
+                <Authorized>
+                    <MudButton Variant="Variant.Filled" Color="Color.Dark" OnClick="@Logout">Sair</MudButton>
+                </Authorized>
+
+                <NotAuthorized>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@Login">Acessar</MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
+        </MudStack>
     </MudAppBar>
 
     <MudDrawer @bind-Open="_drawerOpen">
@@ -35,6 +48,19 @@
     {
         _drawerOpen = !_drawerOpen;
         await LocalStorage.SetItemAsync("drawer", _drawerOpen);
+    }
+
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("jwt_token");
+        await AuthProvider.NotifyStateChanged();
+
+        Navigation.NavigateTo("/login");
+    }
+
+    private void Login()
+    {
+        Navigation.NavigateTo("/login");
     }
 
 }

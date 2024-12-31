@@ -22,16 +22,14 @@ public class CustomAuthStateProvider(ILocalStorageService localStorage, HttpClie
             httpClient.DefaultRequestHeaders
                 .Authorization = new AuthenticationHeaderValue("Bearer", token.Replace("\"", ""));
         }
-        
 
-        var state = new AuthenticationState(new ClaimsPrincipal(identity));
-        return state;
+        return new AuthenticationState(new ClaimsPrincipal(identity));
     }
 
-    public async Task NotifyStateChanged()
+    public Task NotifyStateChanged()
     {
-        var state = await GetAuthenticationStateAsync();
-        NotifyAuthenticationStateChanged(Task.FromResult(state));
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        return Task.CompletedTask;
     }
 
     private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)

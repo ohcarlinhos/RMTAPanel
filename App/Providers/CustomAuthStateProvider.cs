@@ -14,17 +14,17 @@ public class CustomAuthStateProvider(ILocalStorageService localStorage, HttpClie
         var token = await localStorage.GetItemAsStringAsync("jwt_token");
         var identity = new ClaimsIdentity();
 
-        httpClient.DefaultRequestHeaders.Authorization = null;
-
-        if (string.IsNullOrEmpty(token))
+        if (!string.IsNullOrEmpty(token))
         {
-            return new AuthenticationState(new ClaimsPrincipal(identity));
+            identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token.Replace("\"", ""));
         }
-
-        identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
-
-        httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", token.Replace("\"", ""));
+        else
+        {
+            httpClient.DefaultRequestHeaders.Remove("Authorization");
+        }
 
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }
@@ -37,10 +37,22 @@ public class CustomAuthStateProvider(ILocalStorageService localStorage, HttpClie
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            Console.WriteLine("aqui foi error");
         }
     }
 
+    private void NotifyClearState()
+    {
+        try
+        {
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal())));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("aqui foi error");
+        }
+    }
+    
     private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
     {
         var payload = jwt.Split(".")[1];
@@ -65,5 +77,11 @@ public class CustomAuthStateProvider(ILocalStorageService localStorage, HttpClie
         }
 
         return Convert.FromBase64String(base64);
+    }
+    
+    public void ClearSessionAndNotify()
+    {
+        httpClient.DefaultRequestHeaders.Remove("Authorization");
+        NotifyClearState();
     }
 }

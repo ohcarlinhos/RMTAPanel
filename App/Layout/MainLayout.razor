@@ -1,6 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@using App.Services
+@inherits LayoutComponentBase
 @inject ILocalStorageService LocalStorage
-@inject CustomAuthStateProvider AuthProvider
+@inject AuthenticateService AuthService
 @inject NavigationManager Navigation
 
 <MudThemeProvider/>
@@ -52,10 +53,8 @@
 
     private async Task Logout()
     {
-        await LocalStorage.RemoveItemAsync("jwt_token");
-        await AuthProvider.NotifyStateChanged();
-
         Navigation.NavigateTo("/login");
+        await AuthService.Logout();
     }
 
     private void Login()

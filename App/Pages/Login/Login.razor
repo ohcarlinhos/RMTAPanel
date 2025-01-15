@@ -1,6 +1,6 @@
 ﻿@page "/login"
-@inject ILocalStorageService LocalStorage
-@inject CustomAuthStateProvider AuthProvider
+@using App.Services
+@inject AuthenticateService AuthService
 @attribute [AllowAnonymous]
 
 <PageTitle>Acessar | Painel - Registra meu tempo aí!</PageTitle>
@@ -24,8 +24,7 @@
 
     async Task Logout()
     {
-        await LocalStorage.RemoveItemAsync("jwt_token");
-        await AuthProvider.NotifyStateChanged();
+        await AuthService.Logout();
     }
 
 }

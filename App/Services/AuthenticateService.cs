@@ -3,18 +3,18 @@ using Blazored.LocalStorage;
 
 namespace App.Services;
 
-public class AuthenticateService(ILocalStorageService LocalStorage, CustomAuthStateProvider AuthProvider)
+public class AuthenticateService(ILocalStorageService localStorage, CustomAuthStateProvider authProvider)
 {
-    public async Task SetSate(string? token)
+    public async Task Login(string? token)
     {
         if (string.IsNullOrEmpty(token)) throw new Exception("empty_token");
-        await LocalStorage!.SetItemAsync("jwt_token", token);
-        await AuthProvider!.NotifyStateChanged();
+        await localStorage!.SetItemAsync("jwt_token", token);
+        await authProvider!.NotifyStateChanged();
     }
 
-    public async Task ClearSate()
+    public async Task Logout()
     {
-        await LocalStorage!.RemoveItemAsync("jwt_token");
-        await AuthProvider!.NotifyStateChanged();
+        await localStorage!.RemoveItemAsync("jwt_token");
+        authProvider!.ClearSessionAndNotify();
     }
 }

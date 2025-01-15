@@ -37,5 +37,6 @@ builder.Services.AddScoped<UrlQueriesHandle>();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 
+builder.Logging.AddFilter("Microsoft.AspNetCore.Authorization.*", LogLevel.None);
 
 await builder.Build().RunAsync();

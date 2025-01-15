@@ -2,14 +2,12 @@
 @using App.Services
 
 @inject HttpClient Http
-@inject ISnackbar Snackbar
-@inject ILocalStorageService LocalStorage
 @inject IWebAssemblyHostEnvironment Env
 @inject WebAssemblyHostConfiguration Config
 
-@inject CustomAuthStateProvider AuthProvider
 @inject AuthenticateService AuthService
 @inject HttpErrorSnackbarHandle HttpErrorSnackbarHandle
+@inject NavigationManager Navigation
 
 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
     <MudPaper Class="pa-4" Width="100%">
@@ -76,7 +74,12 @@
             if (await HttpErrorSnackbarHandle.IsNotOk(response)) return;
 
             var content = await response.Content.ReadFromJsonAsync<JwtData>();
-            if (content != null) await AuthService.SetSate(content.Token);
+
+            if (content != null)
+            {
+                await AuthService.Login(content.Token);
+                Navigation.NavigateTo("/users");
+            }
         }
         catch (HttpRequestException e)
         {

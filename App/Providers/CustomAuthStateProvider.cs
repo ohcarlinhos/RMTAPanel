@@ -16,20 +16,29 @@ public class CustomAuthStateProvider(ILocalStorageService localStorage, HttpClie
 
         httpClient.DefaultRequestHeaders.Authorization = null;
 
-        if (!string.IsNullOrEmpty(token))
+        if (string.IsNullOrEmpty(token))
         {
-            identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
-            httpClient.DefaultRequestHeaders
-                .Authorization = new AuthenticationHeaderValue("Bearer", token.Replace("\"", ""));
+            return new AuthenticationState(new ClaimsPrincipal(identity));
         }
+
+        identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+
+        httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token.Replace("\"", ""));
 
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }
 
-    public Task NotifyStateChanged()
+    public async Task NotifyStateChanged()
     {
-        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-        return Task.CompletedTask;
+        try
+        {
+            NotifyAuthenticationStateChanged(Task.FromResult(await GetAuthenticationStateAsync()));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
 
     private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)

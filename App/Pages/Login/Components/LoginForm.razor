@@ -22,11 +22,13 @@
                 InputType="InputType.Email"
                 For="@(() => _loginDto.Email)"/>
 
-            <MudTextField
-                @bind-Value="_loginDto.Password"
-                Label="Senha"
-                InputType="InputType.Password"
-                For="@(() => _loginDto.Password)"/>
+            <MudStack Class="mt-2">
+                <MudTextField
+                    @bind-Value="_loginDto.Password"
+                    Label="Senha"
+                    InputType="InputType.Password"
+                    For="@(() => _loginDto.Password)"/>
+            </MudStack>
 
             <MudStack Class="mt-2">
                 <MudButton

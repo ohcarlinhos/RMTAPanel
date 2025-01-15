@@ -1,0 +1,57 @@
+@using Shared.User
+
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject HttpErrorSnackbarHandle HttpErrorSnackbarHandle
+
+
+<MudDialog>
+    <DialogContent>
+        <MudText Class="mb-4">
+            Confirme as informações do usuário que deseja excluir do "Registra meu tempo aí!":
+            <br/>
+            <br/> <b>E-mail:</b> @User.Email
+            <br/> <b>Nome:</b> @User.Name
+        </MudText>
+
+        <CustomActionsModal IsFetch="@_isFetch">
+            <MudButton OnClick="@Cancel" Disabled="_isFetch">Cancelar</MudButton>
+
+            <MudButton Color="Color.Error" OnClick="@Confirm" Disabled="_isFetch">
+                Excluir
+            </MudButton>
+        </CustomActionsModal>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public UserMap User { get; set; } = new();
+
+    private bool _isFetch;
+
+    private void Cancel() => MudDialog!.Cancel();
+
+    private async Task Confirm()
+    {
+        try
+        {
+            _isFetch = true;
+
+            var response = await Http.DeleteAsync($"user/{User.Id}");
+            if (await HttpErrorSnackbarHandle.IsNotOk(response)) return;
+
+            Snackbar.Add($"Usuário excluído com sucesso.", Severity.Success);
+            MudDialog!.Close();
+        }
+        catch (HttpRequestException e)
+        {
+            HttpErrorSnackbarHandle!.GeneralError(e);
+        }
+        finally
+        {
+            _isFetch = false;
+        }
+    }
+
+}

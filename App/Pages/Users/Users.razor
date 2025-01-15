@@ -71,10 +71,17 @@
                             <MudMenuItem OnClick="() => EditRole(context)">Alterar papel</MudMenuItem>
 
                             <MudMenuItem OnClick="() => EditUser(context)">Editar usuário</MudMenuItem>
+
                             <MudMenuItem
                                 OnClick="() => Disable(context)"
                                 Disabled="@(context.Id == UserClaims.Id(MyClaims))">
                                 @(context.IsActive ? "Desativar" : "Ativar") usuário
+                            </MudMenuItem>
+
+                            <MudMenuItem
+                                OnClick="() => Delete(context)"
+                                Disabled="@(context.Id == UserClaims.Id(MyClaims))">
+                                Excluir usuário
                             </MudMenuItem>
                         </MudMenu>
                     </MudTd>
@@ -203,6 +210,17 @@
         var dialogParams = new DialogParameters { { "User", user } };
         var dialog = await DialogService.ShowAsync<DisableUserModal>(
             $"{(user.IsActive ? "Desativar" : "Ativar")} usuário",
+            dialogParams,
+            _modalOptions
+        );
+        await HandleCloseModal(dialog);
+    }
+
+    private async Task Delete(UserMap user)
+    {
+        var dialogParams = new DialogParameters { { "User", user } };
+        var dialog = await DialogService.ShowAsync<DeleteUserModal>(
+            $"Exluir usuário",
             dialogParams,
             _modalOptions
         );

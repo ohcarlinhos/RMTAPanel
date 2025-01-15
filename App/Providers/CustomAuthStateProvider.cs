@@ -37,7 +37,7 @@ public class CustomAuthStateProvider(ILocalStorageService localStorage, HttpClie
         }
         catch (Exception ex)
         {
-            Console.WriteLine("aqui foi error");
+            Console.WriteLine(ex);
         }
     }
 
@@ -49,8 +49,7 @@ public class CustomAuthStateProvider(ILocalStorageService localStorage, HttpClie
         }
         catch (Exception ex)
         {
-            Console.WriteLine("aqui foi error");
-        }
+            Console.WriteLine(ex);        }
     }
     
     private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
